@@ -1,8 +1,8 @@
 {
   "name": "SupTemiz — Уборка на Северном Кипре",
   "short_name": "SupTemiz",
-  "start_url": "/suptemiz/",
-  "scope": "/suptemiz/",
+  "start_url": "/suptemiz-v2/",
+  "scope": "/suptemiz-v2/",
   "display": "standalone",
   "background_color": "#020617",
   "theme_color": "#0f766e",
