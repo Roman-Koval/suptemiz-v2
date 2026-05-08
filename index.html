@@ -7,6 +7,7 @@
   <meta name="description" content="SupTemiz — профессиональная уборка квартир, вилл и офисов на Северном Кипре." />
   <meta name="theme-color" content="#0f766e" />
 
+  <!-- PWA -->
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png" />
   <link rel="apple-touch-icon" href="assets/icons/icon-192.png" />
@@ -15,7 +16,7 @@
 
   <script>
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("/suptemiz-v2/sw.js");
+      navigator.serviceWorker.register("./sw.js");
     }
   </script>
 </head>
