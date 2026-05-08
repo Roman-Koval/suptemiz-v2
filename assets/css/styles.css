@@ -826,4 +826,17 @@ a:hover {
     gap: 4px;
     align-items: flex-start;
   }
+  .status {
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-pending { background: #fbbf24; color: #1f2937; }
+.status-confirmed { background: #3b82f6; color: white; }
+.status-in_progress { background: #6366f1; color: white; }
+.status-done { background: #10b981; color: white; }
+.status-cancelled { background: #ef4444; color: white; }
 }
