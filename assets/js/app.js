@@ -192,6 +192,7 @@ function initOrderForm() {
       comment: form.comment.value.trim(),
       price: calcPrice(form.type.value, Number(form.areaSize.value || 0)),
       createdAtLocal: new Date().toISOString(),
+      status: "pending",
     };
 
     try {
