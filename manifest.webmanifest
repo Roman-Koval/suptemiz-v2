@@ -1,12 +1,12 @@
 {
-  "name": "SupTemiz — Профессиональная уборка",
+  "name": "SupTemiz — Уборка на Северном Кипре",
   "short_name": "SupTemiz",
   "start_url": "/suptemiz/",
   "scope": "/suptemiz/",
   "display": "standalone",
   "background_color": "#020617",
   "theme_color": "#0f766e",
-  "description": "SupTemiz — профессиональная уборка квартир, домов и офисов.",
+  "description": "SupTemiz — профессиональная уборка квартир, вилл и офисов на Северном Кипре.",
   "icons": [
     {
       "src": "icons/icon-192.png",
