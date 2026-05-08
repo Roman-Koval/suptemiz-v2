@@ -1,10 +1,13 @@
-const CACHE_NAME = "suptemiz-cache-v1";
+const CACHE_NAME = "suptemiz-cache-v2";
 
 const OFFLINE_URLS = [
   "/suptemiz/",
   "/suptemiz/index.html",
+  "/suptemiz/admin.html",
   "/suptemiz/assets/css/styles.css",
   "/suptemiz/assets/js/app.js",
+  "/suptemiz/assets/js/admin.js",
+  "/suptemiz/assets/js/firebase-config.js",
   "/suptemiz/manifest.webmanifest"
 ];
 
@@ -30,7 +33,6 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   const { request } = event;
-
   if (request.method !== "GET") return;
 
   event.respondWith(
