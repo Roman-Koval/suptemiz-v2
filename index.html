@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>SupTemiz — Профессиональная уборка</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="SupTemiz — профессиональная уборка квартир, домов и офисов. Быстро, аккуратно, по фиксированной цене." />
+  <meta name="theme-color" content="#0f766e" />
+
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body>
+  <header class="header">
+    <div class="container header__inner">
+      <div class="logo">
+        <span class="logo__mark">Sup</span><span class="logo__text">Temiz</span>
+      </div>
+      <nav class="nav">
+        <a href="#services" class="nav__link">Услуги</a>
+        <a href="#pricing" class="nav__link">Цены</a>
+        <a href="#how" class="nav__link">Как это работает</a>
+        <a href="#reviews" class="nav__link">Отзывы</a>
+        <a href="#order" class="nav__link nav__link--primary">Заказать уборку</a>
+      </nav>
+      <button class="header__menu-btn" id="menuToggle" aria-label="Открыть меню">
+        ☰
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section class="hero">
+      <div class="container hero__inner">
+        <div class="hero__content">
+          <h1>Чистота без хлопот с <span>SupTemiz</span></h1>
+          <p>Профессиональная уборка квартир, домов и офисов. Приезжаем вовремя, работаем аккуратно, оставляем только свежесть и порядок.</p>
+          <div class="hero__actions">
+            <a href="#order" class="btn btn--primary">Заказать уборку</a>
+            <a href="#pricing" class="btn btn--ghost">Посмотреть цены</a>
+          </div>
+          <div class="hero__badges">
+            <span>✔ Гарантия качества</span>
+            <span>✔ Проверенный персонал</span>
+            <span>✔ Работаем каждый день</span>
+          </div>
+        </div>
+        <div class="hero__card">
+          <h2>Быстрый расчёт</h2>
+          <form id="quickQuoteForm" class="form">
+            <label class="form__field">
+              <span>Тип уборки</span>
+              <select id="quickType" required>
+                <option value="standard" selected>Стандартная</option>
+                <option value="deep">Генеральная</option>
+                <option value="office">Офис</option>
+              </select>
+            </label>
+            <label class="form__field">
+              <span>Площадь, м²</span>
+              <input type="number" id="quickArea" min="20" max="300" value="60" required />
+            </label>
+            <p class="form__hint">Ориентировочная стоимость:</p>
+            <p class="hero__price"><span id="quickPrice">—</span> €</p>
+            <button type="submit" class="btn btn--primary btn--full">Оформить заказ</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- Services -->
+    <section id="services" class="section section--alt">
+      <div class="container">
+        <h2 class="section__title">Наши услуги</h2>
+        <p class="section__subtitle">Подберём формат уборки под вашу задачу.</p>
+        <div class="grid grid--3">
+          <article class="card">
+            <h3>Стандартная уборка</h3>
+            <p>Поддерживающая уборка для тех, кто ценит порядок каждый день.</p>
+            <ul class="list">
+              <li>Протирка поверхностей</li>
+              <li>Пылесос и влажная уборка пола</li>
+              <li>Уборка кухни и санузла</li>
+            </ul>
+          </article>
+          <article class="card">
+            <h3>Генеральная уборка</h3>
+            <p>Глубокая уборка после ремонта, переезда или просто «с нуля».</p>
+            <ul class="list">
+              <li>Мытьё труднодоступных мест</li>
+              <li>Чистка плитки, сантехники</li>
+              <li>Обработка кухонных поверхностей</li>
+            </ul>
+          </article>
+          <article class="card">
+            <h3>Офисы и коммерция</h3>
+            <p>Регулярная уборка офисов, салонов, небольших коммерческих помещений.</p>
+            <ul class="list">
+              <li>Гибкий график</li>
+              <li>Фиксированная стоимость</li>
+              <li>Работа до/после рабочего дня</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pricing -->
+    <section id="pricing" class="section">
+      <div class="container">
+        <h2 class="section__title">Прозрачные цены</h2>
+        <p class="section__subtitle">Без скрытых доплат — всё видно заранее.</p>
+        <div class="grid grid--3">
+          <article class="card card--pricing">
+            <h3>Стандартная</h3>
+            <p class="card__price">от 1.2 €/м²</p>
+            <p>Идеально для регулярной уборки квартиры или небольшого дома.</p>
+            <ul class="list">
+              <li>Минимальный заказ — 40 €</li>
+              <li>Среднее время — 2–3 часа</li>
+            </ul>
+          </article>
+          <article class="card card--pricing card--accent">
+            <h3>Генеральная</h3>
+            <p class="card__price">от 1.8 €/м²</p>
+            <p>Глубокая уборка с максимальным вниманием к деталям.</p>
+            <ul class="list">
+              <li>Минимальный заказ — 70 €</li>
+              <li>Среднее время — 4–6 часов</li>
+            </ul>
+          </article>
+          <article class="card card--pricing">
+            <h3>Офис</h3>
+            <p class="card__price">от 1.5 €/м²</p>
+            <p>Регулярная уборка рабочих пространств и коммерческих помещений.</p>
+            <ul class="list">
+              <li>Индивидуальный график</li>
+              <li>Спецусловия при долгосрочном договоре</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- How it works -->
+    <section id="how" class="section section--alt">
+      <div class="container">
+        <h2 class="section__title">Как это работает</h2>
+        <div class="steps">
+          <div class="step">
+            <span class="step__number">1</span>
+            <h3>Оставляете заявку</h3>
+            <p>Заполняете форму на сайте или пишете нам в WhatsApp.</p>
+          </div>
+          <div class="step">
+            <span class="step__number">2</span>
+            <h3>Уточняем детали</h3>
+            <p>Перезваниваем, подтверждаем время, стоимость и адрес.</p>
+          </div>
+          <div class="step">
+            <span class="step__number">3</span>
+            <h3>Приезжаем и убираем</h3>
+            <p>Вы отдыхаете, мы приводим помещение в идеальный порядок.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Reviews -->
+    <section id="reviews" class="section">
+      <div class="container">
+        <h2 class="section__title">Отзывы клиентов</h2>
+        <div class="grid grid--3">
+          <article class="card card--review">
+            <p>«Заказали генеральную уборку после ремонта. Приехали вовремя, всё сделали за один день. Очень довольны!»</p>
+            <span class="card__author">— Анна</span>
+          </article>
+          <article class="card card--review">
+            <p>«Пользуемся регулярной уборкой офиса. Всегда чисто, аккуратно, без напоминаний. Рекомендую.»</p>
+            <span class="card__author">— Сергей</span>
+          </article>
+          <article class="card card--review">
+            <p>«Удобно, что можно быстро посчитать стоимость и оставить заявку прямо на сайте.»</p>
+            <span class="card__author">— Мария</span>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Order form -->
+    <section id="order" class="section section--accent">
+      <div class="container order">
+        <div class="order__info">
+          <h2 class="section__title section__title--light">Оформить заказ</h2>
+          <p class="section__subtitle section__subtitle--light">
+            Заполните форму — мы свяжемся с вами, уточним детали и подтвердим время.
+          </p>
+          <ul class="list list--light">
+            <li>Работаем каждый день с 9:00 до 21:00</li>
+            <li>Приоритет для онлайн‑заявок</li>
+            <li>Можно обсудить детали в WhatsApp</li>
+          </ul>
+          <a id="whatsappLink" class="btn btn--ghost-light" target="_blank" rel="noopener">
+            Написать в WhatsApp
+          </a>
+        </div>
+
+        <div class="order__form">
+          <form id="orderForm" class="form">
+            <label class="form__field">
+              <span>Имя</span>
+              <input type="text" id="name" name="name" required minlength="2" />
+            </label>
+            <label class="form__field">
+              <span>Телефон (WhatsApp)</span>
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                required
+                pattern="^[0-9+() -]{6,20}$"
+                placeholder="+90..."
+              />
+            </label>
+            <label class="form__field">
+              <span>Район / город</span>
+              <input type="text" id="area" name="area" required />
+            </label>
+            <label class="form__field">
+              <span>Тип уборки</span>
+              <select id="type" name="type" required>
+                <option value="standard" selected>Стандартная</option>
+                <option value="deep">Генеральная</option>
+                <option value="office">Офис</option>
+              </select>
+            </label>
+            <label class="form__field">
+              <span>Площадь, м²</span>
+              <input type="number" id="areaSize" name="areaSize" min="20" max="300" value="60" required />
+            </label>
+            <label class="form__field">
+              <span>Дата</span>
+              <input type="date" id="date" name="date" required />
+            </label>
+            <label class="form__field">
+              <span>Время</span>
+              <input type="time" id="time" name="time" required />
+            </label>
+            <label class="form__field">
+              <span>Комментарий</span>
+              <textarea id="comment" name="comment" rows="3" placeholder="Код от домофона, особенности, пожелания"></textarea>
+            </label>
+
+            <div class="form__summary">
+              <div>
+                <span class="form__summary-label">Ориентировочная стоимость:</span>
+                <span class="form__summary-value"><span id="orderPrice">—</span> €</span>
+              </div>
+              <small>Точная цена будет подтверждена оператором.</small>
+            </div>
+
+            <button type="submit" class="btn btn--primary btn--full">Отправить заявку</button>
+            <p class="form__note">
+              Нажимая кнопку, вы соглашаетесь с обработкой персональных данных.
+            </p>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__inner">
+      <div class="footer__col">
+        <div class="logo logo--small">
+          <span class="logo__mark">Sup</span><span class="logo__text">Temiz</span>
+        </div>
+        <p>Профессиональная уборка квартир, домов и офисов.</p>
+      </div>
+      <div class="footer__col">
+        <h4>Контакты</h4>
+        <p>Телефон / WhatsApp: <a href="tel:+905555555555">+90 555 555 55 55</a></p>
+        <p>Email: <a href="mailto:info@sup-temiz.com">info@sup-temiz.com</a></p>
+      </div>
+      <div class="footer__col">
+        <h4>Навигация</h4>
+        <a href="#services">Услуги</a>
+        <a href="#pricing">Цены</a>
+        <a href="#order">Заказать</a>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <div class="container footer__bottom-inner">
+        <span>© <span id="year"></span> SupTemiz</span>
+        <span>Сделано с заботой о чистоте</span>
+      </div>
+    </div>
+  </footer>
+
+  <div id="orderModal" class="modal" aria-hidden="true">
+    <div class="modal__backdrop" data-modal-close></div>
+    <div class="modal__content">
+      <button class="modal__close" data-modal-close>&times;</button>
+      <h3>Заявка отправлена</h3>
+      <p>Спасибо! Мы получили вашу заявку и свяжемся с вами в ближайшее время для подтверждения.</p>
+      <p class="modal__small">Номер заявки: <span id="orderId"></span></p>
+      <button class="btn btn--primary" data-modal-close>Понятно</button>
+    </div>
+  </div>
+
+  <script src="assets/js/app.js" defer></script>
+</body>
+  </html>
