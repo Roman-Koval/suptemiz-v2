@@ -1,14 +1,14 @@
-const CACHE_NAME = "suptemiz-cache-v2";
+const CACHE_NAME = "suptemiz-v2-cache-v1";
 
 const OFFLINE_URLS = [
-  "/suptemiz/",
-  "/suptemiz/index.html",
-  "/suptemiz/admin.html",
-  "/suptemiz/assets/css/styles.css",
-  "/suptemiz/assets/js/app.js",
-  "/suptemiz/assets/js/admin.js",
-  "/suptemiz/assets/js/firebase-config.js",
-  "/suptemiz/manifest.webmanifest"
+  "/suptemiz-v2/",
+  "/suptemiz-v2/index.html",
+  "/suptemiz-v2/admin.html",
+  "/suptemiz-v2/assets/css/styles.css",
+  "/suptemiz-v2/assets/js/app.js",
+  "/suptemiz-v2/assets/js/admin.js",
+  "/suptemiz-v2/assets/js/firebase-config.js",
+  "/suptemiz-v2/manifest.webmanifest"
 ];
 
 self.addEventListener("install", (event) => {
