@@ -13,90 +13,67 @@ let db = null;
 // Расчёт стоимости
 // =========================
 function calcPrice(type, area) {
-  const rates = {
-    standard: 40,
-    deep: 60,
-    office: 50
-  };
-
-  const mins = {
-    standard: 600,
-    deep: 900,
-    office: 750
-  };
+  const rates = { standard: 40, deep: 60, office: 50 };
+  const mins = { standard: 600, deep: 900, office: 750 };
 
   const a = Number(area) || 0;
-  const rate = rates[type] || 0;
-  const min = mins[type] || 0;
-
-  if (!rate || !a) return 0;
-
-  const raw = a * rate;
-  return Math.max(raw, min);
+  const price = a * (rates[type] || 0);
+  return Math.max(price, mins[type] || 0);
 }
 
-function formatPrice(value) {
-  if (!value || value <= 0) return "—";
-  return value.toFixed(0);
+function formatPrice(v) {
+  return v > 0 ? v.toFixed(0) : "—";
 }
 
 // =========================
 // Быстрый калькулятор
 // =========================
 function updateQuickPrice() {
-  const typeEl = document.getElementById("quickType");
-  const areaEl = document.getElementById("quickArea");
-  const priceEl = document.getElementById("quickPrice");
-
-  if (!typeEl || !areaEl || !priceEl) return;
-
-  const price = calcPrice(typeEl.value, areaEl.value);
-  priceEl.textContent = formatPrice(price);
+  const t = document.getElementById("quickType");
+  const a = document.getElementById("quickArea");
+  const p = document.getElementById("quickPrice");
+  if (!t || !a || !p) return;
+  p.textContent = formatPrice(calcPrice(t.value, a.value));
 }
 
 // =========================
 // Цена в форме заказа
 // =========================
 function updateOrderPrice() {
-  const typeEl = document.getElementById("type");
-  const areaEl = document.getElementById("areaSize");
-  const priceEl = document.getElementById("orderPrice");
-
-  if (!typeEl || !areaEl || !priceEl) return;
-
-  const price = calcPrice(typeEl.value, areaEl.value);
-  priceEl.textContent = formatPrice(price);
+  const t = document.getElementById("type");
+  const a = document.getElementById("areaSize");
+  const p = document.getElementById("orderPrice");
+  if (!t || !a || !p) return;
+  p.textContent = formatPrice(calcPrice(t.value, a.value));
 }
 
 // =========================
 // Инициализация расчётов
 // =========================
 function initPriceCalculation() {
-  const quickType = document.getElementById("quickType");
-  const quickArea = document.getElementById("quickArea");
+  const qt = document.getElementById("quickType");
+  const qa = document.getElementById("quickArea");
 
-  if (quickType && quickArea) {
-    quickType.addEventListener("change", () => {
+  if (qt && qa) {
+    qt.addEventListener("change", () => {
       updateQuickPrice();
-      const mainType = document.getElementById("type");
-      if (mainType) mainType.value = quickType.value;
+      document.getElementById("type").value = qt.value;
       updateOrderPrice();
     });
 
-    quickArea.addEventListener("input", () => {
+    qa.addEventListener("input", () => {
       updateQuickPrice();
-      const mainArea = document.getElementById("areaSize");
-      if (mainArea) mainArea.value = quickArea.value;
+      document.getElementById("areaSize").value = qa.value;
       updateOrderPrice();
     });
   }
 
-  const typeEl = document.getElementById("type");
-  const areaEl = document.getElementById("areaSize");
+  const t = document.getElementById("type");
+  const a = document.getElementById("areaSize");
 
-  if (typeEl && areaEl) {
-    typeEl.addEventListener("change", updateOrderPrice);
-    areaEl.addEventListener("input", updateOrderPrice);
+  if (t && a) {
+    t.addEventListener("change", updateOrderPrice);
+    a.addEventListener("input", updateOrderPrice);
   }
 }
 
@@ -110,25 +87,17 @@ function initQuickForm() {
   form.addEventListener("submit", (e) => {
     e.preventDefault();
 
-    const quickType = document.getElementById("quickType");
-    const quickArea = document.getElementById("quickArea");
+    const qt = document.getElementById("quickType");
+    const qa = document.getElementById("quickArea");
 
-    if (quickType) {
-      const mainType = document.getElementById("type");
-      if (mainType) mainType.value = quickType.value;
-    }
-
-    if (quickArea) {
-      const mainArea = document.getElementById("areaSize");
-      if (mainArea) mainArea.value = quickArea.value;
-    }
+    if (qt) document.getElementById("type").value = qt.value;
+    if (qa) document.getElementById("areaSize").value = qa.value;
 
     updateOrderPrice();
 
-    const orderSection = document.getElementById("order");
-    if (orderSection) {
-      orderSection.scrollIntoView({ behavior: "smooth" });
-    }
+    document.getElementById("order").scrollIntoView({
+      behavior: "smooth"
+    });
   });
 }
 
@@ -159,7 +128,7 @@ function sendTelegramNotification(order) {
       text,
       parse_mode: "HTML"
     })
-  }).catch((e) => console.warn("Telegram error", e));
+  });
 }
 
 // =========================
@@ -171,7 +140,6 @@ function initOrderForm() {
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-
     if (!form.reportValidity()) return;
 
     const data = {
@@ -180,42 +148,27 @@ function initOrderForm() {
       phone: form.phone.value.trim(),
       area: form.area.value.trim(),
       type: form.type.value,
-      areaSize: Number(form.areaSize.value || 0),
+      areaSize: Number(form.areaSize.value),
       date: form.date.value,
       time: form.time.value,
       comment: form.comment.value.trim(),
-      price: calcPrice(form.type.value, Number(form.areaSize.value || 0)),
+      price: calcPrice(form.type.value, form.areaSize.value),
       status: "pending",
-      createdAtLocal: new Date().toISOString()
+      createdAt: new Date().toISOString()
     };
 
-    try {
-      await addDoc(collection(db, "orders"), {
-        ...data,
-        createdAt: serverTimestamp()
-      });
-
-      sendTelegramNotification(data);
-
-      const idEl = document.getElementById("orderId");
-      const modalEl = document.getElementById("orderModal");
-
-      if (idEl) idEl.textContent = data.id;
-      if (modalEl) modalEl.setAttribute("aria-hidden", "false");
-
-      form.reset();
-      updateOrderPrice();
-    } catch (err) {
-      console.error(err);
-      alert("Ошибка при отправке заявки. Попробуйте ещё раз.");
-    }
-  });
-
-  document.querySelectorAll("[data-modal-close]").forEach((el) => {
-    el.addEventListener("click", () => {
-      const modalEl = document.getElementById("orderModal");
-      if (modalEl) modalEl.setAttribute("aria-hidden", "true");
+    await addDoc(collection(db, "orders"), {
+      ...data,
+      createdAt: serverTimestamp()
     });
+
+    sendTelegramNotification(data);
+
+    document.getElementById("orderId").textContent = data.id;
+    document.getElementById("orderModal").setAttribute("aria-hidden", "false");
+
+    form.reset();
+    updateOrderPrice();
   });
 }
 
@@ -240,7 +193,6 @@ function initMenu() {
       menu.classList.remove("open");
 
       setTimeout(() => {
-        if (!href) return;
         const target = document.querySelector(href);
         if (target) target.scrollIntoView({ behavior: "smooth" });
       }, 300);
@@ -272,7 +224,6 @@ function initPWAInstall() {
   btn.addEventListener("click", async () => {
     if (!deferredPrompt) return;
     deferredPrompt.prompt();
-    await deferredPrompt.userChoice;
     deferredPrompt = null;
     btn.hidden = true;
   });
@@ -291,6 +242,6 @@ document.addEventListener("DOMContentLoaded", () => {
   initMenu();
   initPWAInstall();
 
-  const yearEl = document.getElementById("year");
-  if (yearEl) yearEl.textContent = new Date().getFullYear();
+  const y = document.getElementById("year");
+  if (y) y.textContent = new Date().getFullYear();
 });
