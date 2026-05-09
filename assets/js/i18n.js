@@ -1,7 +1,3 @@
-// =========================
-// i18n — мультиязычность
-// =========================
-
 const LANG_STORAGE_KEY = "supLang";
 let currentLang = localStorage.getItem(LANG_STORAGE_KEY) || "ru";
 let translations = {};
