@@ -116,8 +116,8 @@ function initPriceCalculation() {
 // =========================
 async function sendTelegramNotification(order) {
   // ⚠️ Замените на ваши данные:
-  const botToken = "TELEGRAM_BOT_TOKEN";   // например: 7123456789:AAF...
-  const chatId   = "TELEGRAM_CHAT_ID";     // например: -100123456789 или личный id
+  const botToken = "8776328263:AAFW4TPDyi1CwnbprZ-S1I2Mj9bXUDL0vv8";
+  const chatId = "897174464";
 
   if (botToken === "TELEGRAM_BOT_TOKEN" || chatId === "TELEGRAM_CHAT_ID") {
     console.warn("Telegram: токен или chat_id не настроены");
