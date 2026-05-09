@@ -1,106 +1,89 @@
+// SupTemiz Service Worker
+// ИСПРАВЛЕНО: фильтрация URL с неподдерживаемыми схемами (chrome-extension, moz-extension и т.д.)
+// которые нельзя класть в Cache API и которые вызывали TypeError на строке put()
+
 const CACHE_NAME = "suptemiz-v2";
 
-// Файлы для кэширования — только те, которые реально существуют
+// Только эти схемы можно кэшировать
+const CACHEABLE_SCHEMES = ["http:", "https:"];
+
+function isCacheable(url) {
+  try {
+    const { protocol } = new URL(url);
+    return CACHEABLE_SCHEMES.includes(protocol);
+  } catch {
+    return false;
+  }
+}
+
+// Список ресурсов для предварительного кэширования
 const PRECACHE_URLS = [
-  "./",
-  "./index.html",
-  "./assets/css/styles.css",
-  "./assets/js/i18n.js",
-  "./assets/js/app.js",
-  "./assets/js/firebase-config.js",
-  "./assets/lang/ru.json",
-  "./assets/lang/tr.json",
-  "./assets/lang/en.json",
-  "./manifest.webmanifest",
-  "./icons/icon-192.png",
-  "./icons/icon-512.png"
+  "/suptemiz-v2/",
+  "/suptemiz-v2/index.html",
+  "/suptemiz-v2/admin.html",
+  "/suptemiz-v2/assets/css/admin.css",
+  "/suptemiz-v2/assets/js/app.js",
+  "/suptemiz-v2/assets/js/admin.js",
+  "/suptemiz-v2/assets/js/firebase-config.js",
+  "/suptemiz-v2/assets/js/i18n.js",
 ];
 
-// Установка SW — кэшируем по одному, пропускаем отсутствующие файлы
+// ─── Install ─────────────────────────────────────────────────────────────────
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(async (cache) => {
-      const results = await Promise.allSettled(
-        PRECACHE_URLS.map((url) =>
-          cache.add(url).catch((err) => {
-            console.warn(`[SW] Не удалось закэшировать: ${url}`, err);
-          })
-        )
-      );
-      const failed = results.filter((r) => r.status === "rejected");
-      if (failed.length) {
-        console.warn(`[SW] ${failed.length} файлов не закэшировано`);
-      }
+    caches.open(CACHE_NAME).then((cache) => {
+      // Кэшируем только кэшируемые URL
+      const cacheableUrls = PRECACHE_URLS.filter(isCacheable);
+      return cache.addAll(cacheableUrls);
     })
   );
-  // Активируем сразу, не ждём закрытия старых вкладок
   self.skipWaiting();
 });
 
-// Активация — удаляем старые кэши
+// ─── Activate ─────────────────────────────────────────────────────────────────
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(
-        keys
-          .filter((key) => key !== CACHE_NAME)
-          .map((key) => {
-            console.log(`[SW] Удаляем старый кэш: ${key}`);
-            return caches.delete(key);
-          })
-      )
-    ).then(() => self.clients.claim())
+      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
+    )
   );
+  self.clients.claim();
 });
 
-// Fetch — стратегия: сначала сеть, fallback на кэш
+// ─── Fetch ────────────────────────────────────────────────────────────────────
 self.addEventListener("fetch", (event) => {
-  // Игнорируем не-GET запросы
-  if (event.request.method !== "GET") return;
+  const { request } = event;
 
-  const url = new URL(event.request.url);
+  // Пропускаем не-GET и некэшируемые схемы (chrome-extension:// и т.д.)
+  if (request.method !== "GET" || !isCacheable(request.url)) return;
 
-  // Кэшируем только http/https — chrome-extension://, data:, blob: не поддерживаются Cache API
-  if (url.protocol !== "http:" && url.protocol !== "https:") return;
+  // Пропускаем Firebase и внешние API — они должны всегда идти в сеть
+  const url = new URL(request.url);
+  const bypassHosts = [
+    "firestore.googleapis.com",
+    "firebase.googleapis.com",
+    "www.gstatic.com",
+    "api.telegram.org",
+    "wa.me",
+  ];
+  if (bypassHosts.some((h) => url.hostname.includes(h))) return;
 
-  // Игнорируем запросы к Firebase, Google APIs, Telegram
-  const isExternal =
-    url.hostname.includes("firebaseio") ||
-    url.hostname.includes("firestore.googleapis") ||
-    url.hostname.includes("identitytoolkit") ||
-    url.hostname.includes("gstatic.com") ||
-    url.hostname.includes("api.telegram.org");
-
-  if (isExternal) return;
-
+  // Стратегия: Network first, fallback to cache
   event.respondWith(
-    fetch(event.request)
+    fetch(request)
       .then((response) => {
-        // Сохраняем успешный ответ в кэш (только http/https, только basic)
-        if (
-          response &&
-          response.status === 200 &&
-          response.type === "basic" &&
-          new URL(event.request.url).protocol.startsWith("http")
-        ) {
+        // Кэшируем только валидные ответы с кэшируемыми URL
+        if (response && response.status === 200 && isCacheable(request.url)) {
           const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(request, clone).catch((err) => {
+              // Молча игнорируем ошибки кэширования (например, opaque responses)
+              console.warn("[SW] cache.put failed:", err.message);
+            });
+          });
         }
         return response;
       })
-      .catch(() => {
-        // Офлайн — отдаём из кэша
-        return caches.match(event.request).then((cached) => {
-          if (cached) return cached;
-          // Для навигационных запросов — fallback на index.html
-          if (event.request.mode === "navigate") {
-            return caches.match("./index.html");
-          }
-          return new Response("Нет подключения к сети", {
-            status: 503,
-            statusText: "Service Unavailable"
-          });
-        });
-      })
+      .catch(() => caches.match(request))
   );
 });
