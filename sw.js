@@ -1,21 +1,22 @@
-const CACHE_NAME = "suptemiz-v2-cache-v1";
-
-const OFFLINE_URLS = [
-  "/suptemiz-v2/",
-  "/suptemiz-v2/index.html",
-  "/suptemiz-v2/admin.html",
-  "/suptemiz-v2/assets/css/styles.css",
-  "/suptemiz-v2/assets/js/app.js",
-  "/suptemiz-v2/assets/js/admin.js",
-  "/suptemiz-v2/assets/js/firebase-config.js",
-  "/suptemiz-v2/manifest.webmanifest"
+const CACHE_NAME = "sup-cache-v1";
+const ASSETS = [
+  "/",
+  "/index.html",
+  "/manifest.webmanifest",
+  "/assets/css/styles.css",
+  "/assets/js/app.js",
+  "/assets/js/i18n.js",
+  "/assets/lang/ru.json",
+  "/assets/lang/tr.json",
+  "/assets/lang/en.json",
+  "/assets/icons/icon-192.png",
+  "/assets/icons/icon-512.png"
 ];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(OFFLINE_URLS))
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
   );
-  self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
@@ -28,24 +29,15 @@ self.addEventListener("activate", (event) => {
       )
     )
   );
-  self.clients.claim();
 });
 
 self.addEventListener("fetch", (event) => {
-  const { request } = event;
-  if (request.method !== "GET") return;
+  if (event.request.method !== "GET") return;
 
   event.respondWith(
-    caches.match(request).then((cached) => {
-      const networkFetch = fetch(request)
-        .then((response) => {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
-          return response;
-        })
-        .catch(() => cached || Promise.reject());
-
-      return cached || networkFetch;
+    caches.match(event.request).then((cached) => {
+      if (cached) return cached;
+      return fetch(event.request);
     })
   );
 });
