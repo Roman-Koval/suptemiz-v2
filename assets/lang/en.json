@@ -1,54 +1,136 @@
 {
-  "nav.services": "Services",
-  "nav.pricing": "Pricing",
-  "nav.how": "How it works",
-  "nav.reviews": "Reviews",
-  "nav.order": "Order cleaning",
-
-  "hero.title": "Effortless cleaning in North Cyprus with <span>SupTemiz</span>",
-  "hero.subtitle": "Professional cleaning for apartments, villas and offices.",
-  "hero.ctaPrimary": "Order cleaning",
-  "hero.ctaSecondary": "See prices",
-  "hero.badge1": "✔ North Cyprus: Famagusta, Iskele, Kyrenia",
-  "hero.badge2": "✔ Verified staff",
-  "hero.badge3": "✔ Support in Russian, Turkish and English",
-  "hero.calcTitle": "Quick estimate",
-  "hero.calcButton": "Place order",
-
-  "form.type": "Cleaning type",
-  "form.area": "Area, m²",
-  "form.estimateLabel": "Estimated cost:",
-  "form.estimateNote": "Exact price will be confirmed.",
-  "form.name": "Name",
-  "form.phone": "Phone (WhatsApp)",
-  "form.region": "Region / city",
-  "form.date": "Date",
-  "form.time": "Time",
-  "form.comment": "Comment",
-  "form.commentPlaceholder": "Door code, notes, preferences",
-  "form.privacy": "By submitting, you agree to data processing.",
-
-  "types.standard": "Standard",
-  "types.deep": "Deep cleaning",
-  "types.office": "Office",
-
-  "order.title": "Place an order",
-  "order.subtitle": "Fill out the form — we will contact you.",
-  "order.info1": "North Cyprus: Famagusta, Iskele, Kyrenia",
-  "order.info2": "Schedule: 09:00–21:00",
-  "order.info3": "You can chat via WhatsApp",
-  "order.whatsapp": "Write in WhatsApp",
-  "order.submit": "Submit",
-
-  "modal.title": "Order sent",
-  "modal.text": "We will contact you shortly.",
-  "modal.orderId": "Order ID:",
-  "modal.ok": "OK",
-
-  "footer.about": "Professional cleaning in North Cyprus.",
-  "footer.contactsTitle": "Contacts",
-  "footer.phoneLabel": "Phone / WhatsApp:",
-  "footer.navTitle": "Navigation",
-  "footer.admin": "Admin panel",
-  "footer.tagline": "Made for North Cyprus"
+  "nav": {
+    "services": "Services",
+    "pricing": "Pricing",
+    "how": "How it works",
+    "reviews": "Reviews",
+    "order": "Book cleaning"
+  },
+  "pwa": {
+    "install": "Install app"
+  },
+  "hero": {
+    "title": "Effortless cleanliness in Northern Cyprus with <span>SupTemiz</span>",
+    "subtitle": "Professional cleaning of apartments, villas and offices in Northern Cyprus. We arrive on time, work carefully, and leave only freshness and order.",
+    "ctaPrimary": "Book cleaning",
+    "ctaSecondary": "View prices",
+    "badge1": "✔ Northern Cyprus: Famagusta, Iskele, Kyrenia",
+    "badge2": "✔ Verified staff",
+    "badge3": "✔ Support in Russian, Turkish and English",
+    "calcTitle": "Quick quote",
+    "calcButton": "Book now"
+  },
+  "types": {
+    "standard": "Standard",
+    "deep": "Deep clean",
+    "office": "Office"
+  },
+  "form": {
+    "type": "Cleaning type",
+    "area": "Area, m²",
+    "region": "District / city",
+    "name": "Name",
+    "phone": "Phone (WhatsApp)",
+    "date": "Date",
+    "time": "Time",
+    "comment": "Comment",
+    "commentPlaceholder": "Door code, special requirements, preferences",
+    "estimateLabel": "Estimated cost:",
+    "estimateNote": "Exact price will be confirmed by our operator.",
+    "privacy": "By clicking the button you agree to the processing of your personal data."
+  },
+  "services": {
+    "title": "Our services",
+    "subtitle": "We'll find the right cleaning format for your needs in Northern Cyprus.",
+    "standard": {
+      "title": "Standard cleaning",
+      "text": "Maintenance cleaning for those who value daily tidiness.",
+      "item1": "Surface wiping",
+      "item2": "Vacuuming and wet floor cleaning",
+      "item3": "Kitchen and bathroom cleaning"
+    },
+    "deep": {
+      "title": "Deep cleaning",
+      "text": "Thorough cleaning after renovation, moving in, or a fresh start.",
+      "item1": "Hard-to-reach areas",
+      "item2": "Tiles and plumbing scrubbing",
+      "item3": "Full kitchen surface treatment"
+    },
+    "office": {
+      "title": "Offices & commercial",
+      "text": "Regular cleaning of offices, salons and commercial spaces.",
+      "item1": "Flexible schedule",
+      "item2": "Fixed pricing",
+      "item3": "Before/after business hours"
+    }
+  },
+  "pricing": {
+    "title": "Transparent pricing",
+    "subtitle": "No hidden fees — everything is clear upfront.",
+    "standardPrice": "from 40 ₺/m²",
+    "standardText": "Ideal for regular cleaning of an apartment or small villa.",
+    "standardMin": "Minimum order — 600 ₺",
+    "standardTime": "Average time — 2–3 hours",
+    "deepPrice": "from 60 ₺/m²",
+    "deepText": "Deep cleaning with maximum attention to detail.",
+    "deepMin": "Minimum order — 900 ₺",
+    "deepTime": "Average time — 4–6 hours",
+    "officePrice": "from 50 ₺/m²",
+    "officeText": "Regular cleaning of offices and commercial premises.",
+    "officeMin": "Minimum order — 750 ₺",
+    "officeTime": "Custom schedule"
+  },
+  "how": {
+    "title": "How it works",
+    "step1": {
+      "title": "Submit a request",
+      "text": "Fill out the form on the website or message us on WhatsApp."
+    },
+    "step2": {
+      "title": "We confirm the details",
+      "text": "We call back to confirm the time, cost and address."
+    },
+    "step3": {
+      "title": "We arrive and clean",
+      "text": "You relax while we bring your space to perfect order."
+    }
+  },
+  "reviews": {
+    "title": "Customer reviews",
+    "r1": {
+      "text": "\"We ordered a deep clean for our villa in Iskele. They arrived on time and finished everything in one day. Very satisfied!\"",
+      "author": "— Anna"
+    },
+    "r2": {
+      "text": "\"We use the regular office cleaning in Famagusta. Always clean and tidy, no reminders needed.\"",
+      "author": "— Sergey"
+    },
+    "r3": {
+      "text": "\"It's great that you can quickly estimate the cost and submit a request right on the website.\"",
+      "author": "— Maria"
+    }
+  },
+  "order": {
+    "title": "Book cleaning",
+    "subtitle": "Fill out the form — we'll contact you to confirm the details and time.",
+    "info1": "We work across Northern Cyprus: Famagusta, Iskele, Kyrenia and surroundings",
+    "info2": "Hours: every day 9:00 AM – 9:00 PM",
+    "info3": "You can discuss details via WhatsApp",
+    "whatsapp": "Message on WhatsApp",
+    "submit": "Submit request"
+  },
+  "footer": {
+    "about": "Professional cleaning of apartments, villas and offices in Northern Cyprus.",
+    "contactsTitle": "Contacts",
+    "phoneLabel": "Phone / WhatsApp:",
+    "navTitle": "Navigation",
+    "admin": "Orders admin",
+    "tagline": "Made for Northern Cyprus"
+  },
+  "modal": {
+    "title": "Request submitted",
+    "text": "Thank you! We've received your request and will contact you shortly to confirm.",
+    "orderId": "Order number:",
+    "ok": "Got it"
+  }
 }
