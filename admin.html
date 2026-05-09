@@ -7,50 +7,67 @@
   <link rel="stylesheet" href="assets/css/admin.css" />
 </head>
 <body>
-  <div class="admin-container">
-    <h1>Админка заказов</h1>
 
-    <div class="admin-controls">
-      <div class="admin-filters">
-        <button data-status="all" class="btn btn--filter btn--active">Все</button>
-        <button data-status="pending" class="btn btn--filter">В ожидании</button>
-        <button data-status="confirmed" class="btn btn--filter">Подтверждён</button>
-        <button data-status="in_progress" class="btn btn--filter">В процессе</button>
-        <button data-status="done" class="btn btn--filter">Завершён</button>
-        <button data-status="cancelled" class="btn btn--filter">Отменён</button>
-      </div>
-      <div class="admin-actions">
-        <input type="text" id="searchInput" placeholder="Поиск по имени или телефону" />
-        <button id="refreshBtn">Обновить</button>
-        <button id="exportBtn">Экспорт в Excel</button>
-      </div>
-    </div>
-
-    <div class="admin-table-wrapper">
-      <table class="admin-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Имя</th>
-            <th>Телефон</th>
-            <th>Район</th>
-            <th>Тип</th>
-            <th>Площадь</th>
-            <th>Дата/время</th>
-            <th>Цена</th>
-            <th>Создано</th>
-            <th>Комментарий</th>
-            <th>Статус</th>
-            <th>Действия</th>
-          </tr>
-        </thead>
-        <tbody id="ordersTableBody"></tbody>
-      </table>
-    </div>
-
-    <div class="admin-card-list" id="ordersCardList"></div>
+<div class="admin-container">
+  <div class="admin-header">
+    <h1>Заказы SupTemiz</h1>
+    <a href="index.html" class="admin-back-link">← На сайт</a>
   </div>
 
-  <script type="module" src="assets/js/admin.js"></script>
+  <!-- Сообщение об ошибке -->
+  <div id="errorMessage" class="admin-error" style="display:none;"></div>
+
+  <!-- Индикатор загрузки -->
+  <div id="loadingIndicator" class="admin-loading" style="display:none;">
+    <span class="admin-loading__spinner"></span>
+    <span>Загрузка заказов…</span>
+  </div>
+
+  <div class="admin-controls">
+    <div class="admin-filters">
+      <button data-status="all" class="btn btn--filter btn--active">Все</button>
+      <button data-status="pending" class="btn btn--filter">В ожидании</button>
+      <button data-status="confirmed" class="btn btn--filter">Подтверждён</button>
+      <button data-status="in_progress" class="btn btn--filter">В процессе</button>
+      <button data-status="done" class="btn btn--filter">Завершён</button>
+      <button data-status="cancelled" class="btn btn--filter">Отменён</button>
+    </div>
+    <div class="admin-actions">
+      <input type="text" id="searchInput" placeholder="Поиск по имени, телефону, ID..." />
+      <button id="refreshBtn" class="btn btn--secondary">Обновить</button>
+      <button id="exportBtn" class="btn btn--secondary">Экспорт в CSV</button>
+    </div>
+  </div>
+
+  <div class="admin-meta">
+    <span id="ordersCount"></span>
+  </div>
+
+  <div class="admin-table-wrapper">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Имя</th>
+          <th>Телефон</th>
+          <th>Район</th>
+          <th>Тип</th>
+          <th>Площадь</th>
+          <th>Дата/время</th>
+          <th>Цена</th>
+          <th>Создано</th>
+          <th>Комментарий</th>
+          <th>Статус</th>
+          <th>Действия</th>
+        </tr>
+      </thead>
+      <tbody id="ordersTableBody"></tbody>
+    </table>
+  </div>
+
+  <div class="admin-card-list" id="ordersCardList"></div>
+</div>
+
+<script type="module" src="assets/js/admin.js"></script>
 </body>
 </html>
