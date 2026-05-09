@@ -60,7 +60,7 @@ function updateQuickPrice() {
 }
 
 // =========================
-// Цена в форме заказа
+– Цена в форме заказа
 // =========================
 function updateOrderPrice() {
   const typeEl = document.getElementById("type");
@@ -80,7 +80,6 @@ function initPriceCalculation() {
   const quickType = document.getElementById("quickType");
   const quickArea = document.getElementById("quickArea");
 
-  // Сброс значений при загрузке
   if (quickArea) quickArea.value = "";
   if (quickType) quickType.value = "standard";
 
@@ -116,8 +115,8 @@ function initPriceCalculation() {
 // Telegram уведомление
 // =========================
 function sendTelegramNotification(order) {
-  const botToken = "8776328263:AAFW4TPDyi1CwnbprZ-S1I2Mj9bXUDL0vv8";
-  const chatId = "897174464";
+  const botToken = "ТВОЙ_ТОКЕН_БОТА";
+  const chatId = "ТВОЙ_CHAT_ID";
 
   const text =
     `🧽 Новый заказ TEMIZ\n` +
@@ -177,6 +176,12 @@ function initMenu() {
   btn.addEventListener("click", () => {
     menu.classList.toggle("open");
   });
+
+  menu.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", () => {
+      menu.classList.remove("open");
+    });
+  });
 }
 
 // =========================
@@ -229,6 +234,32 @@ function initOrderForm() {
 }
 
 // =========================
+// PWA install button
+// =========================
+function initPWAInstall() {
+  const btn = document.getElementById("installBtn");
+  if (!btn) return;
+
+  let deferredPrompt = null;
+
+  window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    btn.hidden = false;
+  });
+
+  btn.addEventListener("click", async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === "accepted") {
+      btn.hidden = true;
+    }
+    deferredPrompt = null;
+  });
+}
+
+// =========================
 // Запуск
 // =========================
 document.addEventListener("DOMContentLoaded", () => {
@@ -239,6 +270,8 @@ document.addEventListener("DOMContentLoaded", () => {
   initOrderForm();
   initWhatsApp();
   initMenu();
+  initPWAInstall();
 
-  document.getElementById("year").textContent = new Date().getFullYear();
+  const yearEl = document.getElementById("year");
+  if (yearEl) yearEl.textContent = new Date().getFullYear();
 });
