@@ -1,26 +1,29 @@
 {
   "name": "SupTemiz",
   "short_name": "SupTemiz",
-  "start_url": "./",
+  "description": "Профессиональная уборка квартир, вилл и офисов на Северном Кипре",
+  "start_url": "/suptemiz-v2/",
+  "scope": "/suptemiz-v2/",
   "display": "standalone",
   "background_color": "#0f172a",
-  "theme_color": "#0f172a",
+  "theme_color": "#0f766e",
+  "lang": "ru",
   "icons": [
     {
-      "src": "assets/icons/icon-192.png",
+      "src": "icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "assets/icons/icon-512.png",
+      "src": "icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     },
     {
-      "src": "assets/icons/icon-512.png",
+      "src": "icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "maskable any"
+      "purpose": "maskable"
     }
   ]
 }
