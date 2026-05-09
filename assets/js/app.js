@@ -2,9 +2,7 @@
 // Firebase
 // =========================
 import { firebaseConfig } from "./firebase-config.js";
-import {
-  initializeApp
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import {
   getFirestore,
   collection,
@@ -19,13 +17,13 @@ let db = null;
 // =========================
 function calcPrice(type, area) {
   const rates = {
-    standard: 40,   // TRY / м²
+    standard: 40,
     deep: 60,
     office: 50
   };
 
   const mins = {
-    standard: 600,  // минимальный заказ в TRY
+    standard: 600,
     deep: 900,
     office: 750
   };
@@ -60,7 +58,7 @@ function updateQuickPrice() {
 }
 
 // =========================
-  //Цена в форме заказа
+// Цена в форме заказа
 // =========================
 function updateOrderPrice() {
   const typeEl = document.getElementById("type");
@@ -112,6 +110,37 @@ function initPriceCalculation() {
 }
 
 // =========================
+// Быстрый калькулятор → форма заказа
+// =========================
+function initQuickForm() {
+  const form = document.getElementById("quickQuoteForm");
+  if (!form) return;
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const quickType = document.getElementById("quickType");
+    const quickArea = document.getElementById("quickArea");
+
+    if (quickType) {
+      const mainType = document.getElementById("type");
+      if (mainType) mainType.value = quickType.value;
+    }
+
+    if (quickArea) {
+      const mainArea = document.getElementById("areaSize");
+      if (mainArea) mainArea.value = quickArea.value;
+    }
+
+    updateOrderPrice();
+
+    document.getElementById("order").scrollIntoView({
+      behavior: "smooth"
+    });
+  });
+}
+
+// =========================
 // Telegram уведомление
 // =========================
 function sendTelegramNotification(order) {
@@ -136,8 +165,8 @@ function sendTelegramNotification(order) {
     body: JSON.stringify({
       chat_id: chatId,
       text,
-      parse_mode: "HTML",
-    }),
+      parse_mode: "HTML"
+    })
   }).catch((e) => console.warn("Telegram error", e));
 }
 
@@ -158,7 +187,7 @@ function initWhatsApp() {
   const wa = document.getElementById("whatsappLink");
   if (!wa) return;
 
-  const phone = "905338001122"; // твой номер
+  const phone = "905338001122";
   const msg = "Здравствуйте! Хочу уточнить детали по уборке.";
 
   wa.href = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
@@ -225,7 +254,7 @@ function initOrderForm() {
       alert("Ошибка при отправке заявки. Попробуйте ещё раз.");
     }
   });
-document.getElementById("date").min = new Date().toISOString().split("T")[0];
+
   document.querySelectorAll("[data-modal-close]").forEach((el) => {
     el.addEventListener("click", () => {
       document.getElementById("orderModal").setAttribute("aria-hidden", "true");
@@ -268,6 +297,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   initPriceCalculation();
   initOrderForm();
+  initQuickForm();
   initWhatsApp();
   initMenu();
   initPWAInstall();
