@@ -1,6 +1,3 @@
-// =========================
-// Firebase
-// =========================
 import { firebaseConfig } from "./firebase-config.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import {
@@ -13,7 +10,7 @@ import {
 let db = null;
 
 // =========================
-// Расчёт стоимости (TRY)
+// Расчёт стоимости
 // =========================
 function calcPrice(type, area) {
   const rates = {
@@ -28,10 +25,10 @@ function calcPrice(type, area) {
     office: 750
   };
 
+  const a = Number(area) || 0;
   const rate = rates[type] || 0;
   const min = mins[type] || 0;
 
-  const a = Number(area) || 0;
   if (!rate || !a) return 0;
 
   const raw = a * rate;
@@ -44,7 +41,7 @@ function formatPrice(value) {
 }
 
 // =========================
-// Быстрый расчёт
+// Быстрый калькулятор
 // =========================
 function updateQuickPrice() {
   const typeEl = document.getElementById("quickType");
@@ -72,17 +69,11 @@ function updateOrderPrice() {
 }
 
 // =========================
-// Инициализация расчёта
+// Инициализация расчётов
 // =========================
 function initPriceCalculation() {
   const quickType = document.getElementById("quickType");
   const quickArea = document.getElementById("quickArea");
-
-  if (quickArea) quickArea.value = "";
-  if (quickType) quickType.value = "standard";
-
-  const quickPrice = document.getElementById("quickPrice");
-  if (quickPrice) quickPrice.textContent = "—";
 
   if (quickType && quickArea) {
     quickType.addEventListener("change", () => {
@@ -110,7 +101,7 @@ function initPriceCalculation() {
 }
 
 // =========================
-// Быстрый калькулятор → форма заказа
+// Быстрый → форма заказа
 // =========================
 function initQuickForm() {
   const form = document.getElementById("quickQuoteForm");
@@ -134,9 +125,10 @@ function initQuickForm() {
 
     updateOrderPrice();
 
-    document.getElementById("order").scrollIntoView({
-      behavior: "smooth"
-    });
+    const orderSection = document.getElementById("order");
+    if (orderSection) {
+      orderSection.scrollIntoView({ behavior: "smooth" });
+    }
   });
 }
 
@@ -171,50 +163,7 @@ function sendTelegramNotification(order) {
 }
 
 // =========================
-// Firebase сохранение
-// =========================
-async function saveOrderToFirebase(data) {
-  await addDoc(collection(db, "orders"), {
-    ...data,
-    createdAt: serverTimestamp()
-  });
-}
-
-// =========================
-// WhatsApp
-// =========================
-function initWhatsApp() {
-  const wa = document.getElementById("whatsappLink");
-  if (!wa) return;
-
-  const phone = "905338001122";
-  const msg = "Здравствуйте! Хочу уточнить детали по уборке.";
-
-  wa.href = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
-}
-
-// =========================
-// Бургер-меню
-// =========================
-function initMenu() {
-  const btn = document.getElementById("menuToggle");
-  const menu = document.getElementById("mobileMenu");
-
-  if (!btn || !menu) return;
-
-  btn.addEventListener("click", () => {
-    menu.classList.toggle("open");
-  });
-
-  menu.querySelectorAll("a").forEach((link) => {
-    link.addEventListener("click", () => {
-      menu.classList.remove("open");
-    });
-  });
-}
-
-// =========================
-// Обработка формы заказа
+// Форма заказа
 // =========================
 function initOrderForm() {
   const form = document.getElementById("orderForm");
@@ -236,34 +185,77 @@ function initOrderForm() {
       time: form.time.value,
       comment: form.comment.value.trim(),
       price: calcPrice(form.type.value, Number(form.areaSize.value || 0)),
-      createdAtLocal: new Date().toISOString(),
-      status: "pending"
+      status: "pending",
+      createdAtLocal: new Date().toISOString()
     };
 
     try {
-      await saveOrderToFirebase(data);
+      await addDoc(collection(db, "orders"), {
+        ...data,
+        createdAt: serverTimestamp()
+      });
+
       sendTelegramNotification(data);
+
+      const idEl = document.getElementById("orderId");
+      const modalEl = document.getElementById("orderModal");
+
+      if (idEl) idEl.textContent = data.id;
+      if (modalEl) modalEl.setAttribute("aria-hidden", "false");
 
       form.reset();
       updateOrderPrice();
-
-      document.getElementById("orderId").textContent = data.id;
-      document.getElementById("orderModal").setAttribute("aria-hidden", "false");
-    } catch (e) {
-      console.error(e);
+    } catch (err) {
+      console.error(err);
       alert("Ошибка при отправке заявки. Попробуйте ещё раз.");
     }
   });
 
   document.querySelectorAll("[data-modal-close]").forEach((el) => {
     el.addEventListener("click", () => {
-      document.getElementById("orderModal").setAttribute("aria-hidden", "true");
+      const modalEl = document.getElementById("orderModal");
+      if (modalEl) modalEl.setAttribute("aria-hidden", "true");
     });
   });
 }
 
 // =========================
-// PWA install button
+// Мобильное меню (исправленное)
+// =========================
+function initMenu() {
+  const btn = document.getElementById("menuToggle");
+  const menu = document.getElementById("mobileMenu");
+
+  if (!btn || !menu) return;
+
+  btn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    menu.classList.toggle("open");
+  });
+
+  menu.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", (e) => {
+      e.preventDefault();
+      const href = link.getAttribute("href");
+      menu.classList.remove("open");
+
+      setTimeout(() => {
+        if (!href) return;
+        const target = document.querySelector(href);
+        if (target) target.scrollIntoView({ behavior: "smooth" });
+      }, 300);
+    });
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!menu.contains(e.target) && e.target !== btn) {
+      menu.classList.remove("open");
+    }
+  });
+}
+
+// =========================
+// PWA install
 // =========================
 function initPWAInstall() {
   const btn = document.getElementById("installBtn");
@@ -280,11 +272,9 @@ function initPWAInstall() {
   btn.addEventListener("click", async () => {
     if (!deferredPrompt) return;
     deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === "accepted") {
-      btn.hidden = true;
-    }
+    await deferredPrompt.userChoice;
     deferredPrompt = null;
+    btn.hidden = true;
   });
 }
 
@@ -296,9 +286,8 @@ document.addEventListener("DOMContentLoaded", () => {
   db = getFirestore(app);
 
   initPriceCalculation();
-  initOrderForm();
   initQuickForm();
-  initWhatsApp();
+  initOrderForm();
   initMenu();
   initPWAInstall();
 
