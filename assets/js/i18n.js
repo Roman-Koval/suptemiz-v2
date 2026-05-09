@@ -1,66 +1,46 @@
-const DEFAULT_LANG = 'ru';
-const LANG_KEY = 'supTemiz_lang';
+// =========================
+// i18n — мультиязычность
+// =========================
 
-// сохранить язык
-function setLang(lang) {
-    localStorage.setItem(LANG_KEY, lang);
-}
+const LANG_STORAGE_KEY = "supLang";
+let currentLang = localStorage.getItem(LANG_STORAGE_KEY) || "ru";
+let translations = {};
 
-// получить язык
-function getLang() {
-    return localStorage.getItem(LANG_KEY) || DEFAULT_LANG;
-}
-
-// загрузить JSON и применить переводы
 async function loadLang(lang) {
-    try {
-        const response = await fetch(`assets/lang/${lang}.json?v=${Date.now()}`);
-        const dict = await response.json();
-
-        // обычный текст
-        document.querySelectorAll('[data-i18n]').forEach(el => {
-            const key = el.getAttribute('data-i18n');
-            if (dict[key]) el.textContent = dict[key];
-        });
-
-        // placeholder
-        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-            const key = el.getAttribute('data-i18n-placeholder');
-            if (dict[key]) el.placeholder = dict[key];
-        });
-
-        // title
-        if (dict['meta_title']) {
-            document.title = dict['meta_title'];
-        }
-
-        // description
-        const metaDesc = document.querySelector('meta[name="description"]');
-        if (metaDesc && dict['meta_description']) {
-            metaDesc.setAttribute('content', dict['meta_description']);
-        }
-
-    } catch (err) {
-        console.error('i18n load error:', err);
-    }
+  try {
+    const res = await fetch(`assets/lang/${lang}.json`);
+    translations = await res.json();
+    currentLang = lang;
+    localStorage.setItem(LANG_STORAGE_KEY, lang);
+    applyTranslations();
+  } catch (e) {
+    console.error("Ошибка загрузки языка:", e);
+  }
 }
 
-// инициализация
-document.addEventListener('DOMContentLoaded', () => {
-    const select = document.getElementById('langSelect');
-    const currentLang = getLang();
+function applyTranslations() {
+  document.querySelectorAll("[data-i18n]").forEach((el) => {
+    const key = el.getAttribute("data-i18n");
+    if (translations[key]) el.innerHTML = translations[key];
+  });
 
-    // установить выбранный язык в селекторе
-    if (select) {
-        select.value = currentLang;
+  document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
+    const key = el.getAttribute("data-i18n-placeholder");
+    if (translations[key]) el.placeholder = translations[key];
+  });
 
-        select.addEventListener('change', () => {
-            const lang = select.value;
-            setLang(lang);
-            loadLang(lang);
-        });
-    }
+  document.querySelectorAll("[data-i18n-value]").forEach((el) => {
+    const key = el.getAttribute("data-i18n-value");
+    if (translations[key]) el.value = translations[key];
+  });
+}
 
-    // загрузить язык при старте
-    loadLang(currentLang);
+document.addEventListener("DOMContentLoaded", () => {
+  const select = document.getElementById("langSelect");
+  if (select) {
+    select.value = currentLang;
+    select.addEventListener("change", () => loadLang(select.value));
+  }
+
+  loadLang(currentLang);
 });
