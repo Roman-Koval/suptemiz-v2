@@ -24,7 +24,7 @@ async function loadOrders() {
   const snap = await getDocs(q);
 
   allOrders = snap.docs.map((d) => ({
-    _docId: d.id, // Firestore ID
+    _docId: d.id,
     ...d.data()
   }));
 
@@ -57,15 +57,15 @@ function render() {
     const tr = document.createElement("tr");
 
     tr.innerHTML = `
-      <td>${o.id || ""}</td>
-      <td>${o.name || ""}</td>
-      <td>${o.phone || ""}</td>
-      <td>${o.area || ""}</td>
-      <td>${o.type || ""}</td>
-      <td>${o.areaSize || ""}</td>
-      <td>${o.price || ""}</td>
-      <td>${o.date || ""} ${o.time || ""}</td>
-      <td>${o.status || ""}</td>
+      <td>${o.id}</td>
+      <td>${o.name}</td>
+      <td>${o.phone}</td>
+      <td>${o.area}</td>
+      <td>${o.type}</td>
+      <td>${o.areaSize}</td>
+      <td>${o.price}</td>
+      <td>${o.date} ${o.time}</td>
+      <td>${o.status}</td>
       <td>
         <button data-action="confirm">✔</button>
         <button data-action="start">▶</button>
@@ -142,11 +142,7 @@ function exportToExcel() {
   let csv = "ID;Имя;Телефон;Район;Тип;Площадь;Цена;Дата;Время;Статус\n";
 
   allOrders.forEach((o) => {
-    csv += `${o.id || ""};${o.name || ""};${o.phone || ""};${o.area || ""};${
-      o.type || ""
-    };${o.areaSize || ""};${o.price || ""};${o.date || ""};${
-      o.time || ""
-    };${o.status || ""}\n`;
+    csv += `${o.id};${o.name};${o.phone};${o.area};${o.type};${o.areaSize};${o.price};${o.date};${o.time};${o.status}\n`;
   });
 
   const blob = new Blob(["\uFEFF" + csv], {
