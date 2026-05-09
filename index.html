@@ -6,17 +6,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="SupTemiz — профессиональная уборка квартир, вилл и офисов на Северном Кипре." />
   <meta name="theme-color" content="#0f766e" />
-
   <!-- PWA -->
-  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png" />
   <link rel="apple-touch-icon" href="assets/icons/icon-192.png" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="SupTemiz" />
-
   <link rel="stylesheet" href="assets/css/styles.css" />
-
   <script>
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
@@ -26,381 +23,398 @@
   </script>
 </head>
 <body>
-  <header class="header">
-    <div class="container header__inner">
-      <div class="logo">
-        <span class="logo__mark">Sup</span><span class="logo__text">Temiz</span>
-      </div>
-      <nav class="nav">
-        <a href="#services" class="nav__link" data-i18n="nav.services">Услуги</a>
-        <a href="#pricing" class="nav__link" data-i18n="nav.pricing">Цены</a>
-        <a href="#how" class="nav__link" data-i18n="nav.how">Как это работает</a>
-        <a href="#reviews" class="nav__link" data-i18n="nav.reviews">Отзывы</a>
-        <a href="#order" class="nav__link nav__link--primary" data-i18n="nav.order">Заказать уборку</a>
-      </nav>
 
-      <div class="header__right">
-        <select id="langSelect" class="lang-select" aria-label="Language">
-          <option value="ru">RU</option>
-          <option value="tr">TR</option>
-          <option value="en">EN</option>
-        </select>
-        <button class="btn btn--ghost header__install-btn" id="installBtn" hidden data-i18n="pwa.install">
-          Установить
-        </button>
-        <button class="header__menu-btn" id="menuToggle" aria-label="Открыть меню">
-          ☰
-        </button>
-      </div>
+<header class="header">
+  <div class="container header__inner">
+    <div class="logo">
+      <span class="logo__mark">Sup</span><span class="logo__text">Temiz</span>
     </div>
-  </header>
-
-  <nav class="mobile-menu" id="mobileMenu">
-    <a href="#services" data-i18n="nav.services">Услуги</a>
-    <a href="#pricing" data-i18n="nav.pricing">Цены</a>
-    <a href="#how" data-i18n="nav.how">Как это работает</a>
-    <a href="#reviews" data-i18n="nav.reviews">Отзывы</a>
-    <a href="#order" class="primary" data-i18n="nav.order">Заказать уборку</a>
-  </nav>
-
-  <main>
-    <!-- Hero -->
-    <section class="hero">
-      <div class="container hero__inner">
-        <div class="hero__content">
-          <h1 data-i18n="hero.title">
-            Чистота без хлопот на Северном Кипре с <span>SupTemiz</span>
-          </h1>
-          <p data-i18n="hero.subtitle">
-            Профессиональная уборка квартир, вилл и офисов на Северном Кипре. Приезжаем вовремя, работаем аккуратно, оставляем только свежесть и порядок.
-          </p>
-          <div class="hero__actions">
-            <a href="#order" class="btn btn--primary" data-i18n="hero.ctaPrimary">Заказать уборку</a>
-            <a href="#pricing" class="btn btn--ghost" data-i18n="hero.ctaSecondary">Посмотреть цены</a>
-          </div>
-          <div class="hero__badges">
-            <span data-i18n="hero.badge1">✔ Северный Кипр: Фамагуста, Искеле, Кирения</span>
-            <span data-i18n="hero.badge2">✔ Проверенный персонал</span>
-            <span data-i18n="hero.badge3">✔ Поддержка на русском, турецком и английском</span>
-          </div>
-        </div>
-        <div class="hero__card">
-          <h2 data-i18n="hero.calcTitle">Быстрый расчёт</h2>
-          <form id="quickQuoteForm" class="form">
-            <label class="form__field">
-              <span data-i18n="form.type">Тип уборки</span>
-              <select id="quickType" required>
-                <option value="standard" selected data-i18n="types.standard">Стандартная</option>
-                <option value="deep" data-i18n="types.deep">Генеральная</option>
-                <option value="office" data-i18n="types.office">Офис</option>
-              </select>
-            </label>
-            <label class="form__field">
-              <span data-i18n="form.area">Площадь, м²</span>
-              <input type="number" id="quickArea" min="20" max="300" value="" required />
-            </label>
-            <p class="form__hint" data-i18n="form.estimateLabel">Ориентировочная стоимость:</p>
-            <p class="hero__price"><span id="quickPrice">—</span> ₺</p>
-            <button type="submit" class="btn btn--primary btn--full" data-i18n="hero.calcButton">
-              Оформить заказ
-            </button>
-          </form>
-        </div>
-      </div>
-    </section>
-
-    <!-- Services -->
-    <section id="services" class="section section--alt">
-      <div class="container">
-        <h2 class="section__title" data-i18n="services.title">Наши услуги</h2>
-        <p class="section__subtitle" data-i18n="services.subtitle">
-          Подберём формат уборки под вашу задачу на Северном Кипре.
-        </p>
-        <div class="grid grid--3">
-          <article class="card">
-            <h3 data-i18n="services.standard.title">Стандартная уборка</h3>
-            <p data-i18n="services.standard.text">
-              Поддерживающая уборка для тех, кто ценит порядок каждый день.
-            </p>
-            <ul class="list">
-              <li data-i18n="services.standard.item1">Протирка поверхностей</li>
-              <li data-i18n="services.standard.item2">Пылесос и влажная уборка пола</li>
-              <li data-i18n="services.standard.item3">Уборка кухни и санузла</li>
-            </ul>
-          </article>
-          <article class="card">
-            <h3 data-i18n="services.deep.title">Генеральная уборка</h3>
-            <p data-i18n="services.deep.text">
-              Глубокая уборка после ремонта, переезда или просто «с нуля».
-            </p>
-            <ul class="list">
-              <li data-i18n="services.deep.item1">Мытьё труднодоступных мест</li>
-              <li data-i18n="services.deep.item2">Чистка плитки, сантехники</li>
-              <li data-i18n="services.deep.item3">Обработка кухонных поверхностей</li>
-            </ul>
-          </article>
-          <article class="card">
-            <h3 data-i18n="services.office.title">Офисы и коммерция</h3>
-            <p data-i18n="services.office.text">
-              Регулярная уборка офисов, салонов и коммерческих помещений.
-            </p>
-            <ul class="list">
-              <li data-i18n="services.office.item1">Гибкий график</li>
-              <li data-i18n="services.office.item2">Фиксированная стоимость</li>
-              <li data-i18n="services.office.item3">Работа до/после рабочего дня</li>
-            </ul>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <!-- Pricing -->
-    <section id="pricing" class="section">
-      <div class="container">
-        <h2 class="section__title" data-i18n="pricing.title">Прозрачные цены</h2>
-        <p class="section__subtitle" data-i18n="pricing.subtitle">
-          Без скрытых доплат — всё видно заранее.
-        </p>
-        <div class="grid grid--3">
-          <article class="card card--pricing">
-            <h3 data-i18n="types.standard">Стандартная</h3>
-            <p class="card__price" data-i18n="pricing.standardPrice">от 40 ₺/м²</p>
-            <p data-i18n="pricing.standardText">
-              Идеально для регулярной уборки квартиры или небольшой виллы.
-            </p>
-            <ul class="list">
-              <li data-i18n="pricing.standardMin">Минимальный заказ — 600 ₺</li>
-              <li data-i18n="pricing.standardTime">Среднее время — 2–3 часа</li>
-            </ul>
-          </article>
-          <article class="card card--pricing card--accent">
-            <h3 data-i18n="types.deep">Генеральная</h3>
-            <p class="card__price" data-i18n="pricing.deepPrice">от 60 ₺/м²</p>
-            <p data-i18n="pricing.deepText">
-              Глубокая уборка с максимальным вниманием к деталям.
-            </p>
-            <ul class="list">
-              <li data-i18n="pricing.deepMin">Минимальный заказ — 900 ₺</li>
-              <li data-i18n="pricing.deepTime">Среднее время — 4–6 часов</li>
-            </ul>
-          </article>
-          <article class="card card--pricing">
-            <h3 data-i18n="types.office">Офис</h3>
-            <p class="card__price" data-i18n="pricing.officePrice">от 50 ₺/м²</p>
-            <p data-i18n="pricing.officeText">
-              Регулярная уборка офисов и коммерческих помещений.
-            </p>
-            <ul class="list">
-              <li data-i18n="pricing.officeMin">Минимальный заказ — 750 ₺</li>
-              <li data-i18n="pricing.officeTime">Индивидуальный график</li>
-            </ul>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <!-- How it works -->
-    <section id="how" class="section section--alt">
-      <div class="container">
-        <h2 class="section__title" data-i18n="how.title">Как это работает</h2>
-        <div class="steps">
-          <div class="step">
-            <span class="step__number">1</span>
-            <h3 data-i18n="how.step1.title">Оставляете заявку</h3>
-            <p data-i18n="how.step1.text">
-              Заполняете форму на сайте или пишете нам в WhatsApp.
-            </p>
-          </div>
-          <div class="step">
-            <span class="step__number">2</span>
-            <h3 data-i18n="how.step2.title">Уточняем детали</h3>
-            <p data-i18n="how.step2.text">
-              Перезваниваем, подтверждаем время, стоимость и адрес.
-            </p>
-          </div>
-          <div class="step">
-            <span class="step__number">3</span>
-            <h3 data-i18n="how.step3.title">Приезжаем и убираем</h3>
-            <p data-i18n="how.step3.text">
-              Вы отдыхаете, мы приводим помещение в идеальный порядок.
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Reviews -->
-    <section id="reviews" class="section">
-      <div class="container">
-        <h2 class="section__title" data-i18n="reviews.title">Отзывы клиентов</h2>
-        <div class="grid grid--3">
-          <article class="card card--review">
-            <p data-i18n="reviews.r1.text">
-              «Заказали генеральную уборку виллы в Искеле. Приехали вовремя, всё сделали за один день. Очень довольны!»
-            </p>
-            <span class="card__author" data-i18n="reviews.r1.author">— Анна</span>
-          </article>
-          <article class="card card--review">
-            <p data-i18n="reviews.r2.text">
-              «Пользуемся регулярной уборкой офиса в Фамагусте. Всегда чисто, аккуратно, без напоминаний.»
-            </p>
-            <span class="card__author" data-i18n="reviews.r2.author">— Сергей</span>
-          </article>
-          <article class="card card--review">
-            <p data-i18n="reviews.r3.text">
-              «Удобно, что можно быстро посчитать стоимость и оставить заявку прямо на сайте.»
-            </p>
-            <span class="card__author" data-i18n="reviews.r3.author">— Мария</span>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <!-- Order form -->
-    <section id="order" class="section section--accent">
-      <div class="container order">
-        <div class="order__info">
-          <h2 class="section__title section__title--light" data-i18n="order.title">Оформить заказ</h2>
-          <p class="section__subtitle section__subtitle--light" data-i18n="order.subtitle">
-            Заполните форму — мы свяжемся с вами, уточним детали и подтвердим время.
-          </p>
-          <ul class="list list--light">
-            <li data-i18n="order.info1">Работаем на Северном Кипре: Фамагуста, Искеле, Кирения и окрестности</li>
-            <li data-i18n="order.info2">График: каждый день с 9:00 до 21:00</li>
-            <li data-i18n="order.info3">Можно обсудить детали в WhatsApp</li>
-          </ul>
-          <a id="whatsappLink" class="btn btn--ghost-light" target="_blank" rel="noopener" data-i18n="order.whatsapp">
-            Написать в WhatsApp
-          </a>
-        </div>
-
-        <div class="order__form">
-          <form id="orderForm" class="form">
-            <label class="form__field">
-              <span data-i18n="form.name">Имя</span>
-              <input type="text" id="name" name="name" required minlength="2" />
-            </label>
-            <label class="form__field">
-              <span data-i18n="form.phone">Телефон (WhatsApp)</span>
-              <input
-                type="tel"
-                id="phone"
-                name="phone"
-                required
-                pattern="^[0-9+() -]{6,20}$"
-                placeholder="+90 5xx xxx xx xx"
-              />
-            </label>
-            <label class="form__field">
-              <span data-i18n="form.region">Район / город</span>
-              <input type="text" id="area" name="area" required placeholder="Iskele, Famagusta, Kyrenia..." />
-            </label>
-            <label class="form__field">
-              <span data-i18n="form.type">Тип уборки</span>
-              <select id="type" name="type" required>
-                <option value="standard" selected data-i18n="types.standard">Стандартная</option>
-                <option value="deep" data-i18n="types.deep">Генеральная</option>
-                <option value="office" data-i18n="types.office">Офис</option>
-              </select>
-            </label>
-            <label class="form__field">
-              <span data-i18n="form.area">Площадь, м²</span>
-              <input type="number" id="areaSize" name="areaSize" min="20" max="300" value="60" required />
-            </label>
-            <label class="form__field">
-              <span data-i18n="form.date">Дата</span>
-              <input type="date" id="date" name="date" required />
-            </label>
-            <label class="form__field">
-              <span data-i18n="form.time">Время</span>
-              <input type="time" id="time" name="time" required />
-            </label>
-            <label class="form__field">
-              <span data-i18n="form.comment">Комментарий</span>
-              <textarea
-                id="comment"
-                name="comment"
-                rows="3"
-                data-i18n-placeholder="form.commentPlaceholder"
-                placeholder="Код от домофона, особенности, пожелания"
-              ></textarea>
-            </label>
-
-            <div class="form__summary">
-              <div>
-                <span class="form__summary-label" data-i18n="form.estimateLabel">Ориентировочная стоимость:</span>
-                <span class="form__summary-value"><span id="orderPrice">—</span> ₺</span>
-              </div>
-              <small data-i18n="form.estimateNote">Точная цена будет подтверждена оператором.</small>
-            </div>
-
-            <button type="submit" class="btn btn--primary btn--full" data-i18n="order.submit">
-              Отправить заявку
-            </button>
-            <p class="form__note" data-i18n="form.privacy">
-              Нажимая кнопку, вы соглашаетесь с обработкой персональных данных.
-            </p>
-          </form>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <footer class="footer">
-    <div class="container footer__inner">
-      <div class="footer__col">
-        <div class="logo logo--small">
-          <span class="logo__mark">Sup</span><span class="logo__text">Temiz</span>
-        </div>
-        <p data-i18n="footer.about">
-          Профессиональная уборка квартир, вилл и офисов на Северном Кипре.
-        </p>
-      </div>
-      <div class="footer__col">
-        <h4 data-i18n="footer.contactsTitle">Контакты</h4>
-        <p>
-          <span data-i18n="footer.phoneLabel">Телефон / WhatsApp:</span>
-          <a href="tel:+905555555555">+90 555 555 55 55</a>
-        </p>
-        <p>
-          Email: <a href="mailto:info@sup-temiz.com">info@sup-temiz.com</a>
-        </p>
-      </div>
-      <div class="footer__col">
-        <h4 data-i18n="footer.navTitle">Навигация</h4>
-        <a href="#services" data-i18n="nav.services">Услуги</a>
-        <a href="#pricing" data-i18n="nav.pricing">Цены</a>
-        <a href="#order" data-i18n="nav.order">Заказать</a>
-        <a href="admin.html" target="_blank" rel="noopener" data-i18n="footer.admin">Админка заказов</a>
-      </div>
-    </div>
-    <div class="footer__bottom">
-      <div class="container footer__bottom-inner">
-        <span>© <span id="year"></span> SupTemiz</span>
-        <span data-i18n="footer.tagline">Сделано для Северного Кипра</span>
-      </div>
-    </div>
-  </footer>
-
-  <div id="orderModal" class="modal" aria-hidden="true">
-    <div class="modal__backdrop" data-modal-close></div>
-    <div class="modal__content">
-      <button class="modal__close" data-modal-close>&times;</button>
-      <h3 data-i18n="modal.title">Заявка отправлена</h3>
-      <p data-i18n="modal.text">
-        Спасибо! Мы получили вашу заявку и свяжемся с вами в ближайшее время для подтверждения.
-      </p>
-      <p class="modal__small">
-        <span data-i18n="modal.orderId">Номер заявки:</span>
-        <span id="orderId"></span>
-      </p>
-      <button class="btn btn--primary" data-modal-close data-i18n="modal.ok">
-        Понятно
+    <nav class="nav">
+      <a href="#services" class="nav__link" data-i18n="nav.services">Услуги</a>
+      <a href="#pricing" class="nav__link" data-i18n="nav.pricing">Цены</a>
+      <a href="#how" class="nav__link" data-i18n="nav.how">Как это работает</a>
+      <a href="#reviews" class="nav__link" data-i18n="nav.reviews">Отзывы</a>
+      <a href="#order" class="nav__link nav__link--primary" data-i18n="nav.order">Заказать уборку</a>
+    </nav>
+    <div class="header__right">
+      <select id="langSelect" class="lang-select" aria-label="Language">
+        <option value="ru">RU</option>
+        <option value="tr">TR</option>
+        <option value="en">EN</option>
+      </select>
+      <button class="btn btn--ghost header__install-btn" id="installBtn" hidden data-i18n="pwa.install">
+        Установить
+      </button>
+      <button class="header__menu-btn" id="menuToggle" aria-label="Открыть меню" aria-expanded="false">
+        ☰
       </button>
     </div>
   </div>
+</header>
 
-  <script src="assets/js/i18n.js"></script>
-  <script type="module" src="assets/js/app.js"></script>
+<nav class="mobile-menu" id="mobileMenu">
+  <a href="#services" data-i18n="nav.services">Услуги</a>
+  <a href="#pricing" data-i18n="nav.pricing">Цены</a>
+  <a href="#how" data-i18n="nav.how">Как это работает</a>
+  <a href="#reviews" data-i18n="nav.reviews">Отзывы</a>
+  <a href="#order" class="primary" data-i18n="nav.order">Заказать уборку</a>
+</nav>
+
+<main>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container hero__inner">
+      <div class="hero__content">
+        <h1 data-i18n="hero.title">
+          Чистота без хлопот на Северном Кипре с <span>SupTemiz</span>
+        </h1>
+        <p data-i18n="hero.subtitle">
+          Профессиональная уборка квартир, вилл и офисов на Северном Кипре. Приезжаем вовремя, работаем аккуратно, оставляем только свежесть и порядок.
+        </p>
+        <div class="hero__actions">
+          <a href="#order" class="btn btn--primary" data-i18n="hero.ctaPrimary">Заказать уборку</a>
+          <a href="#pricing" class="btn btn--ghost" data-i18n="hero.ctaSecondary">Посмотреть цены</a>
+        </div>
+        <div class="hero__badges">
+          <span data-i18n="hero.badge1">✔ Северный Кипр: Фамагуста, Искеле, Кирения</span>
+          <span data-i18n="hero.badge2">✔ Проверенный персонал</span>
+          <span data-i18n="hero.badge3">✔ Поддержка на русском, турецком и английском</span>
+        </div>
+      </div>
+
+      <div class="hero__card">
+        <h2 data-i18n="hero.calcTitle">Быстрый расчёт</h2>
+        <form id="quickQuoteForm" class="form">
+          <label class="form__field">
+            <span data-i18n="form.type">Тип уборки</span>
+            <select id="quickType" required>
+              <option value="standard" selected data-i18n="types.standard">Стандартная</option>
+              <option value="deep" data-i18n="types.deep">Генеральная</option>
+              <option value="office" data-i18n="types.office">Офис</option>
+            </select>
+          </label>
+          <label class="form__field">
+            <span data-i18n="form.area">Площадь, м²</span>
+            <input type="number" id="quickArea" min="20" max="300" value="" placeholder="60" />
+          </label>
+          <p class="form__hint" data-i18n="form.estimateLabel">Ориентировочная стоимость:</p>
+          <p class="hero__price"><span id="quickPrice">—</span> ₺</p>
+          <button type="submit" class="btn btn--primary btn--full" data-i18n="hero.calcButton">
+            Оформить заказ
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Services -->
+  <section id="services" class="section section--alt">
+    <div class="container">
+      <h2 class="section__title" data-i18n="services.title">Наши услуги</h2>
+      <p class="section__subtitle" data-i18n="services.subtitle">
+        Подберём формат уборки под вашу задачу на Северном Кипре.
+      </p>
+      <div class="grid grid--3">
+        <article class="card">
+          <h3 data-i18n="services.standard.title">Стандартная уборка</h3>
+          <p data-i18n="services.standard.text">
+            Поддерживающая уборка для тех, кто ценит порядок каждый день.
+          </p>
+          <ul class="list">
+            <li data-i18n="services.standard.item1">Протирка поверхностей</li>
+            <li data-i18n="services.standard.item2">Пылесос и влажная уборка пола</li>
+            <li data-i18n="services.standard.item3">Уборка кухни и санузла</li>
+          </ul>
+        </article>
+        <article class="card">
+          <h3 data-i18n="services.deep.title">Генеральная уборка</h3>
+          <p data-i18n="services.deep.text">
+            Глубокая уборка после ремонта, переезда или просто «с нуля».
+          </p>
+          <ul class="list">
+            <li data-i18n="services.deep.item1">Мытьё труднодоступных мест</li>
+            <li data-i18n="services.deep.item2">Чистка плитки, сантехники</li>
+            <li data-i18n="services.deep.item3">Обработка кухонных поверхностей</li>
+          </ul>
+        </article>
+        <article class="card">
+          <h3 data-i18n="services.office.title">Офисы и коммерция</h3>
+          <p data-i18n="services.office.text">
+            Регулярная уборка офисов, салонов и коммерческих помещений.
+          </p>
+          <ul class="list">
+            <li data-i18n="services.office.item1">Гибкий график</li>
+            <li data-i18n="services.office.item2">Фиксированная стоимость</li>
+            <li data-i18n="services.office.item3">Работа до/после рабочего дня</li>
+          </ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section id="pricing" class="section">
+    <div class="container">
+      <h2 class="section__title" data-i18n="pricing.title">Прозрачные цены</h2>
+      <p class="section__subtitle" data-i18n="pricing.subtitle">
+        Без скрытых доплат — всё видно заранее.
+      </p>
+      <div class="grid grid--3">
+        <article class="card card--pricing">
+          <h3 data-i18n="types.standard">Стандартная</h3>
+          <p class="card__price" data-i18n="pricing.standardPrice">от 40 ₺/м²</p>
+          <p data-i18n="pricing.standardText">
+            Идеально для регулярной уборки квартиры или небольшой виллы.
+          </p>
+          <ul class="list">
+            <li data-i18n="pricing.standardMin">Минимальный заказ — 600 ₺</li>
+            <li data-i18n="pricing.standardTime">Среднее время — 2–3 часа</li>
+          </ul>
+        </article>
+        <article class="card card--pricing card--accent">
+          <h3 data-i18n="types.deep">Генеральная</h3>
+          <p class="card__price" data-i18n="pricing.deepPrice">от 60 ₺/м²</p>
+          <p data-i18n="pricing.deepText">
+            Глубокая уборка с максимальным вниманием к деталям.
+          </p>
+          <ul class="list">
+            <li data-i18n="pricing.deepMin">Минимальный заказ — 900 ₺</li>
+            <li data-i18n="pricing.deepTime">Среднее время — 4–6 часов</li>
+          </ul>
+        </article>
+        <article class="card card--pricing">
+          <h3 data-i18n="types.office">Офис</h3>
+          <p class="card__price" data-i18n="pricing.officePrice">от 50 ₺/м²</p>
+          <p data-i18n="pricing.officeText">
+            Регулярная уборка офисов и коммерческих помещений.
+          </p>
+          <ul class="list">
+            <li data-i18n="pricing.officeMin">Минимальный заказ — 750 ₺</li>
+            <li data-i18n="pricing.officeTime">Индивидуальный график</li>
+          </ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section id="how" class="section section--alt">
+    <div class="container">
+      <h2 class="section__title" data-i18n="how.title">Как это работает</h2>
+      <div class="steps">
+        <div class="step">
+          <span class="step__number">1</span>
+          <h3 data-i18n="how.step1.title">Оставляете заявку</h3>
+          <p data-i18n="how.step1.text">
+            Заполняете форму на сайте или пишете нам в WhatsApp.
+          </p>
+        </div>
+        <div class="step">
+          <span class="step__number">2</span>
+          <h3 data-i18n="how.step2.title">Уточняем детали</h3>
+          <p data-i18n="how.step2.text">
+            Перезваниваем, подтверждаем время, стоимость и адрес.
+          </p>
+        </div>
+        <div class="step">
+          <span class="step__number">3</span>
+          <h3 data-i18n="how.step3.title">Приезжаем и убираем</h3>
+          <p data-i18n="how.step3.text">
+            Вы отдыхаете, мы приводим помещение в идеальный порядок.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Reviews -->
+  <section id="reviews" class="section">
+    <div class="container">
+      <h2 class="section__title" data-i18n="reviews.title">Отзывы клиентов</h2>
+      <div class="grid grid--3">
+        <article class="card card--review">
+          <p data-i18n="reviews.r1.text">
+            «Заказали генеральную уборку виллы в Искеле. Приехали вовремя, всё сделали за один день. Очень довольны!»
+          </p>
+          <span class="card__author" data-i18n="reviews.r1.author">— Анна</span>
+        </article>
+        <article class="card card--review">
+          <p data-i18n="reviews.r2.text">
+            «Пользуемся регулярной уборкой офиса в Фамагусте. Всегда чисто, аккуратно, без напоминаний.»
+          </p>
+          <span class="card__author" data-i18n="reviews.r2.author">— Сергей</span>
+        </article>
+        <article class="card card--review">
+          <p data-i18n="reviews.r3.text">
+            «Удобно, что можно быстро посчитать стоимость и оставить заявку прямо на сайте.»
+          </p>
+          <span class="card__author" data-i18n="reviews.r3.author">— Мария</span>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Order form -->
+  <section id="order" class="section section--accent">
+    <div class="container order">
+      <div class="order__info">
+        <h2 class="section__title section__title--light" data-i18n="order.title">Оформить заказ</h2>
+        <p class="section__subtitle section__subtitle--light" data-i18n="order.subtitle">
+          Заполните форму — мы свяжемся с вами, уточним детали и подтвердим время.
+        </p>
+        <ul class="list list--light">
+          <li data-i18n="order.info1">Работаем на Северном Кипре: Фамагуста, Искеле, Кирения и окрестности</li>
+          <li data-i18n="order.info2">График: каждый день с 9:00 до 21:00</li>
+          <li data-i18n="order.info3">Можно обсудить детали в WhatsApp</li>
+        </ul>
+        <a id="whatsappLink" href="#" class="btn btn--ghost-light" target="_blank" rel="noopener" data-i18n="order.whatsapp">
+          Написать в WhatsApp
+        </a>
+      </div>
+
+      <div class="order__form">
+        <form id="orderForm" class="form">
+          <label class="form__field">
+            <span data-i18n="form.name">Имя</span>
+            <input type="text" id="name" name="name" required minlength="2" />
+          </label>
+
+          <label class="form__field">
+            <span data-i18n="form.phone">Телефон (WhatsApp)</span>
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              required
+              pattern="^[0-9+() \-]{6,20}$"
+              placeholder="+90 5xx xxx xx xx"
+            />
+          </label>
+
+          <label class="form__field">
+            <!-- ИСПРАВЛЕНО: был data-i18n="form.area" — коллизия с полем площади -->
+            <span data-i18n="form.region">Район / город</span>
+            <input type="text" id="area" name="area" required placeholder="Iskele, Famagusta, Kyrenia..." />
+          </label>
+
+          <label class="form__field">
+            <span data-i18n="form.type">Тип уборки</span>
+            <select id="type" name="type" required>
+              <option value="standard" selected data-i18n="types.standard">Стандартная</option>
+              <option value="deep" data-i18n="types.deep">Генеральная</option>
+              <option value="office" data-i18n="types.office">Офис</option>
+            </select>
+          </label>
+
+          <label class="form__field">
+            <span data-i18n="form.area">Площадь, м²</span>
+            <input type="number" id="areaSize" name="areaSize" min="20" max="300" value="60" required />
+          </label>
+
+          <label class="form__field">
+            <span data-i18n="form.date">Дата</span>
+            <input type="date" id="date" name="date" required />
+          </label>
+
+          <label class="form__field">
+            <span data-i18n="form.time">Время</span>
+            <input type="time" id="time" name="time" required min="09:00" max="21:00" />
+          </label>
+
+          <label class="form__field">
+            <span data-i18n="form.comment">Комментарий</span>
+            <textarea
+              id="comment"
+              name="comment"
+              rows="3"
+              data-i18n-placeholder="form.commentPlaceholder"
+              placeholder="Код от домофона, особенности, пожелания"
+            ></textarea>
+          </label>
+
+          <div class="form__summary">
+            <div>
+              <span class="form__summary-label" data-i18n="form.estimateLabel">Ориентировочная стоимость:</span>
+              <span class="form__summary-value"><span id="orderPrice">—</span> ₺</span>
+            </div>
+            <small data-i18n="form.estimateNote">Точная цена будет подтверждена оператором.</small>
+          </div>
+
+          <button
+            type="submit"
+            class="btn btn--primary btn--full"
+            data-i18n="order.submit"
+            data-i18n-text="order.submit"
+          >
+            Отправить заявку
+          </button>
+
+          <p class="form__note" data-i18n="form.privacy">
+            Нажимая кнопку, вы соглашаетесь с обработкой персональных данных.
+          </p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <div class="container footer__inner">
+    <div class="footer__col">
+      <div class="logo logo--small">
+        <span class="logo__mark">Sup</span><span class="logo__text">Temiz</span>
+      </div>
+      <p data-i18n="footer.about">
+        Профессиональная уборка квартир, вилл и офисов на Северном Кипре.
+      </p>
+    </div>
+    <div class="footer__col">
+      <h4 data-i18n="footer.contactsTitle">Контакты</h4>
+      <p>
+        <span data-i18n="footer.phoneLabel">Телефон / WhatsApp:</span>
+        <a href="tel:+905338001122">+90 533 800 11 22</a>
+      </p>
+      <p>
+        Email: <a href="mailto:info@sup-temiz.com">info@sup-temiz.com</a>
+      </p>
+    </div>
+    <div class="footer__col">
+      <h4 data-i18n="footer.navTitle">Навигация</h4>
+      <a href="#services" data-i18n="nav.services">Услуги</a>
+      <a href="#pricing" data-i18n="nav.pricing">Цены</a>
+      <a href="#order" data-i18n="nav.order">Заказать</a>
+      <a href="admin.html" target="_blank" rel="noopener" data-i18n="footer.admin">Админка заказов</a>
+    </div>
+  </div>
+  <div class="footer__bottom">
+    <div class="container footer__bottom-inner">
+      <span>© <span id="year"></span> SupTemiz</span>
+      <span data-i18n="footer.tagline">Сделано для Северного Кипра</span>
+    </div>
+  </div>
+</footer>
+
+<div id="orderModal" class="modal" aria-hidden="true">
+  <div class="modal__backdrop" data-modal-close></div>
+  <div class="modal__content">
+    <button class="modal__close" data-modal-close aria-label="Закрыть">&times;</button>
+    <h3 data-i18n="modal.title">Заявка отправлена</h3>
+    <p data-i18n="modal.text">
+      Спасибо! Мы получили вашу заявку и свяжемся с вами в ближайшее время для подтверждения.
+    </p>
+    <p class="modal__small">
+      <span data-i18n="modal.orderId">Номер заявки:</span>
+      <span id="orderId"></span>
+    </p>
+    <button class="btn btn--primary" data-modal-close data-i18n="modal.ok">
+      Понятно
+    </button>
+  </div>
+</div>
+
+<script src="assets/js/i18n.js"></script>
+<script type="module" src="assets/js/app.js"></script>
 </body>
 </html>
