@@ -60,7 +60,7 @@ function updateQuickPrice() {
 }
 
 // =========================
-– Цена в форме заказа
+  Цена в форме заказа
 // =========================
 function updateOrderPrice() {
   const typeEl = document.getElementById("type");
