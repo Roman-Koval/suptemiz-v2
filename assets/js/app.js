@@ -18,13 +18,26 @@ let db = null;
 // Расчёт стоимости (TRY)
 // =========================
 function calcPrice(type, area) {
-  const rates = { standard: 40, deep: 60, office: 50 };
-  const mins  = { standard: 600, deep: 900, office: 750 };
-  const rate  = rates[type] || 0;
-  const min   = mins[type]  || 0;
-  const a     = Number(area) || 0;
+  const rates = {
+    standard: 40,
+    deep: 60,
+    office: 50
+  };
+
+  const mins = {
+    standard: 600,
+    deep: 900,
+    office: 750
+  };
+
+  const rate = rates[type] || 0;
+  const min = mins[type] || 0;
+
+  const a = Number(area) || 0;
   if (!rate || !a) return 0;
-  return Math.max(a * rate, min);
+
+  const raw = a * rate;
+  return Math.max(raw, min);
 }
 
 function formatPrice(value) {
@@ -36,50 +49,51 @@ function formatPrice(value) {
 // Быстрый расчёт
 // =========================
 function updateQuickPrice() {
-  const typeEl  = document.getElementById("quickType");
-  const areaEl  = document.getElementById("quickArea");
+  const typeEl = document.getElementById("quickType");
+  const areaEl = document.getElementById("quickArea");
   const priceEl = document.getElementById("quickPrice");
+
   if (!typeEl || !areaEl || !priceEl) return;
-  priceEl.textContent = formatPrice(calcPrice(typeEl.value, areaEl.value));
+
+  const price = calcPrice(typeEl.value, areaEl.value);
+  priceEl.textContent = formatPrice(price);
 }
 
 // =========================
 // Цена в форме заказа
 // =========================
 function updateOrderPrice() {
-  const typeEl  = document.getElementById("type");
-  const areaEl  = document.getElementById("areaSize");
+  const typeEl = document.getElementById("type");
+  const areaEl = document.getElementById("areaSize");
   const priceEl = document.getElementById("orderPrice");
+
   if (!typeEl || !areaEl || !priceEl) return;
-  priceEl.textContent = formatPrice(calcPrice(typeEl.value, areaEl.value));
+
+  const price = calcPrice(typeEl.value, areaEl.value);
+  priceEl.textContent = formatPrice(price);
 }
 
 // =========================
 // Инициализация расчёта
-// ИСПРАВЛЕНО: кнопка "Оформить заказ" в быстром расчёте
-// переносит тип и площадь в главную форму и скроллит к ней
-// без сброса quickQuoteForm
 // =========================
 function initPriceCalculation() {
-  const quickType  = document.getElementById("quickType");
-  const quickArea  = document.getElementById("quickArea");
-  const quickPrice = document.getElementById("quickPrice");
-  const quickForm  = document.getElementById("quickQuoteForm");
+  const quickType = document.getElementById("quickType");
+  const quickArea = document.getElementById("quickArea");
 
-  if (quickArea)  quickArea.value        = "";
-  if (quickType)  quickType.value        = "standard";
+  if (quickArea) quickArea.value = "";
+  if (quickType) quickType.value = "standard";
+
+  const quickPrice = document.getElementById("quickPrice");
   if (quickPrice) quickPrice.textContent = "—";
 
-  if (quickType) {
+  if (quickType && quickArea) {
     quickType.addEventListener("change", () => {
       updateQuickPrice();
       const mainType = document.getElementById("type");
       if (mainType) mainType.value = quickType.value;
       updateOrderPrice();
     });
-  }
 
-  if (quickArea) {
     quickArea.addEventListener("input", () => {
       updateQuickPrice();
       const mainArea = document.getElementById("areaSize");
@@ -88,76 +102,71 @@ function initPriceCalculation() {
     });
   }
 
-  // Перехватываем submit быстрой формы:
-  // переносим значения в главную форму и скроллим к ней, НЕ сбрасываем поля
-  if (quickForm) {
-    quickForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-
-      const mainType = document.getElementById("type");
-      const mainArea = document.getElementById("areaSize");
-
-      if (mainType && quickType) mainType.value = quickType.value;
-      if (mainArea && quickArea && quickArea.value) mainArea.value = quickArea.value;
-
-      updateOrderPrice();
-
-      const orderSection = document.getElementById("order");
-      if (orderSection) {
-        orderSection.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
-
-      // Фокус на первое незаполненное поле в главной форме
-      setTimeout(() => {
-        const nameField = document.getElementById("name");
-        if (nameField && !nameField.value) nameField.focus();
-      }, 600);
-    });
-  }
-
   const typeEl = document.getElementById("type");
   const areaEl = document.getElementById("areaSize");
-  if (typeEl) typeEl.addEventListener("change", updateOrderPrice);
-  if (areaEl) areaEl.addEventListener("input",  updateOrderPrice);
+
+  if (typeEl && areaEl) {
+    typeEl.addEventListener("change", updateOrderPrice);
+    areaEl.addEventListener("input", updateOrderPrice);
+  }
+}
+
+// =========================
+// Быстрая форма → переход на #order
+// =========================
+function initQuickQuoteForm() {
+  const form = document.getElementById("quickQuoteForm");
+  if (!form) return;
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const quickType = document.getElementById("quickType");
+    const quickArea = document.getElementById("quickArea");
+
+    // Синхронизируем значения с основной формой
+    const mainType = document.getElementById("type");
+    const mainArea = document.getElementById("areaSize");
+    if (mainType && quickType) mainType.value = quickType.value;
+    if (mainArea && quickArea && quickArea.value) mainArea.value = quickArea.value;
+    updateOrderPrice();
+
+    // Плавный скролл к форме заказа
+    const orderSection = document.getElementById("order");
+    if (orderSection) {
+      orderSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  });
 }
 
 // =========================
 // Telegram уведомление
-// ЗАМЕНИ TG_BOT_TOKEN и TG_CHAT_ID на свои реальные значения!
-// Токен берётся у @BotFather, chatId — у @userinfobot
 // =========================
 function sendTelegramNotification(order) {
-  const botToken = "8776328263:AAFW4TPDyi1CwnbprZ-S1I2Mj9bXUDL0vv8";
-  const chatId = "897174464";
-
-function sendTelegramNotification(order) {
-  if (TG_BOT_TOKEN.startsWith("СЮДА") || TG_CHAT_ID.startsWith("СЮДА")) {
-    console.warn("[Telegram] Токен или chatId не настроены — уведомление пропущено");
-    return;
-  }
-
-  const typeLabel = { standard: "Стандартная", deep: "Генеральная", office: "Офис" };
+  const botToken = "ТВОЙ_ТОКЕН_БОТА";
+  const chatId = "ТВОЙ_CHAT_ID";
 
   const text =
-    `🧽 <b>Новый заказ SupTemiz</b>\n\n` +
-    `📌 ID: <code>${order.id}</code>\n` +
-    `👤 Имя: ${order.name}\n` +
-    `📞 Телефон: ${order.phone}\n` +
-    `📍 Район: ${order.area}\n` +
-    `🏠 Тип: ${typeLabel[order.type] || order.type}\n` +
-    `📐 Площадь: ${order.areaSize || "—"} м²\n` +
-    `💰 Цена: ${order.price} ₺\n` +
-    `📅 Дата/время: ${order.date || "—"} ${order.time || ""}\n` +
-    `💬 Комментарий: ${order.comment || "—"}`;
+    `🧽 Новый заказ TEMIZ\n` +
+    `ID: ${order.id}\n` +
+    `Имя: ${order.name}\n` +
+    `Телефон: ${order.phone}\n` +
+    `Район: ${order.area}\n` +
+    `Тип: ${order.type}\n` +
+    `Площадь: ${order.areaSize || "-"}\n` +
+    `Цена: ${order.price} ₺\n` +
+    `Дата/время: ${order.date || "-"} ${order.time || ""}\n` +
+    `Статус: ${order.status}`;
 
-  fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`, {
+  fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ chat_id: TG_CHAT_ID, text, parse_mode: "HTML" }),
-  })
-    .then((r) => r.json())
-    .then((r) => { if (!r.ok) console.warn("[Telegram] API error:", r.description); })
-    .catch((e) => console.warn("[Telegram] fetch error:", e));
+    body: JSON.stringify({
+      chat_id: chatId,
+      text,
+      parse_mode: "HTML",
+    }),
+  }).catch((e) => console.warn("Telegram error", e));
 }
 
 // =========================
@@ -176,41 +185,80 @@ async function saveOrderToFirebase(data) {
 function initWhatsApp() {
   const wa = document.getElementById("whatsappLink");
   if (!wa) return;
+
   const phone = "905338001122";
-  const msg   = "Здравствуйте! Хочу уточнить детали по уборке.";
+  const msg = "Здравствуйте! Хочу уточнить детали по уборке.";
+
+  // Устанавливаем href через JS, убираем href="#" из HTML
   wa.href = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+  wa.removeAttribute("onclick");
+
+  // Предотвращаем перезагрузку страницы
+  wa.addEventListener("click", (e) => {
+    e.stopPropagation();
+    // href уже задан, браузер сам откроет ссылку в target="_blank"
+  });
 }
 
 // =========================
 // Бургер-меню
-// ИСПРАВЛЕНО: position:fixed чтобы меню не уходило наверх при скролле
 // =========================
 function initMenu() {
-  const btn  = document.getElementById("menuToggle");
+  const btn = document.getElementById("menuToggle");
   const menu = document.getElementById("mobileMenu");
+
   if (!btn || !menu) return;
 
-  menu.style.position = "fixed";
-  menu.style.top      = "0";
-  menu.style.right    = "0";
-  menu.style.zIndex   = "9999";
+  btn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const isOpen = menu.classList.toggle("open");
+    btn.setAttribute("aria-expanded", String(isOpen));
+  });
 
-  const open = () => {
-    menu.classList.add("open");
-    document.body.style.overflow = "hidden";
-    btn.setAttribute("aria-expanded", "true");
-  };
-  const close = () => {
-    menu.classList.remove("open");
-    document.body.style.overflow = "";
-    btn.setAttribute("aria-expanded", "false");
-  };
+  // Закрываем меню при клике на ссылку
+  menu.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", () => {
+      menu.classList.remove("open");
+      btn.setAttribute("aria-expanded", "false");
+    });
+  });
 
-  btn.addEventListener("click", () => menu.classList.contains("open") ? close() : open());
-  menu.querySelectorAll("a").forEach((a) => a.addEventListener("click", close));
-  document.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
+  // Закрываем меню при клике вне его
   document.addEventListener("click", (e) => {
-    if (menu.classList.contains("open") && !menu.contains(e.target) && e.target !== btn) close();
+    if (!menu.contains(e.target) && e.target !== btn) {
+      menu.classList.remove("open");
+      btn.setAttribute("aria-expanded", "false");
+    }
+  });
+}
+
+// =========================
+// Модальное окно
+// =========================
+function openModal() {
+  const modal = document.getElementById("orderModal");
+  if (!modal) return;
+  modal.setAttribute("aria-hidden", "false");
+  modal.classList.add("modal--open");
+  document.body.style.overflow = "hidden";
+}
+
+function closeModal() {
+  const modal = document.getElementById("orderModal");
+  if (!modal) return;
+  modal.setAttribute("aria-hidden", "true");
+  modal.classList.remove("modal--open");
+  document.body.style.overflow = "";
+}
+
+function initModal() {
+  document.querySelectorAll("[data-modal-close]").forEach((el) => {
+    el.addEventListener("click", closeModal);
+  });
+
+  // Закрытие по Escape
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeModal();
   });
 }
 
@@ -223,24 +271,28 @@ function initOrderForm() {
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
+
     if (!form.reportValidity()) return;
 
     const submitBtn = form.querySelector('[type="submit"]');
-    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = "Отправляем…"; }
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Отправляем...";
+    }
 
     const data = {
-      id:             "ST-" + Math.random().toString(36).substring(2, 10).toUpperCase(),
-      name:           form.name.value.trim(),
-      phone:          form.phone.value.trim(),
-      area:           form.area.value.trim(),
-      type:           form.type.value,
-      areaSize:       Number(form.areaSize.value || 0),
-      date:           form.date.value,
-      time:           form.time.value,
-      comment:        form.comment.value.trim(),
-      price:          calcPrice(form.type.value, Number(form.areaSize.value || 0)),
+      id: "ST-" + Math.random().toString(36).substring(2, 10).toUpperCase(),
+      name: form.name.value.trim(),
+      phone: form.phone.value.trim(),
+      area: form.area.value.trim(),
+      type: form.type.value,
+      areaSize: Number(form.areaSize.value || 0),
+      date: form.date.value,
+      time: form.time.value,
+      comment: form.comment.value.trim(),
+      price: calcPrice(form.type.value, Number(form.areaSize.value || 0)),
       createdAtLocal: new Date().toISOString(),
-      status:         "pending"
+      status: "pending"
     };
 
     try {
@@ -250,23 +302,18 @@ function initOrderForm() {
       form.reset();
       updateOrderPrice();
 
-      const idEl    = document.getElementById("orderId");
-      const modalEl = document.getElementById("orderModal");
-      if (idEl)    idEl.textContent = data.id;
-      if (modalEl) modalEl.setAttribute("aria-hidden", "false");
+      const orderIdEl = document.getElementById("orderId");
+      if (orderIdEl) orderIdEl.textContent = data.id;
+      openModal();
     } catch (err) {
       console.error(err);
       alert("Ошибка при отправке заявки. Попробуйте ещё раз.");
     } finally {
-      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = "Отправить заявку"; }
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Отправить заявку";
+      }
     }
-  });
-
-  document.querySelectorAll("[data-modal-close]").forEach((el) => {
-    el.addEventListener("click", () => {
-      const modalEl = document.getElementById("orderModal");
-      if (modalEl) modalEl.setAttribute("aria-hidden", "true");
-    });
   });
 }
 
@@ -276,17 +323,22 @@ function initOrderForm() {
 function initPWAInstall() {
   const btn = document.getElementById("installBtn");
   if (!btn) return;
+
   let deferredPrompt = null;
+
   window.addEventListener("beforeinstallprompt", (e) => {
     e.preventDefault();
     deferredPrompt = e;
     btn.hidden = false;
   });
+
   btn.addEventListener("click", async () => {
     if (!deferredPrompt) return;
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === "accepted") btn.hidden = true;
+    if (outcome === "accepted") {
+      btn.hidden = true;
+    }
     deferredPrompt = null;
   });
 }
@@ -295,13 +347,15 @@ function initPWAInstall() {
 // Запуск
 // =========================
 document.addEventListener("DOMContentLoaded", () => {
-  const firebaseApp = initializeApp(firebaseConfig);
-  db = getFirestore(firebaseApp);
+  const app = initializeApp(firebaseConfig);
+  db = getFirestore(app);
 
   initPriceCalculation();
+  initQuickQuoteForm();
   initOrderForm();
   initWhatsApp();
   initMenu();
+  initModal();
   initPWAInstall();
 
   const yearEl = document.getElementById("year");
