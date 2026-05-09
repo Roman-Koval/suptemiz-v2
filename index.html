@@ -6,12 +6,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="SupTemiz — профессиональная уборка квартир, вилл и офисов на Северном Кипре." />
   <meta name="theme-color" content="#0f766e" />
-  <!-- PWA -->
   <link rel="manifest" href="manifest.webmanifest">
-  <!-- ИСПРАВЛЕНО: иконки в папке icons/ (корень репо), не assets/icons/ -->
   <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
-  <!-- Актуальный тег для Chrome (заменяет deprecated apple-mobile-web-app-capable) -->
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -29,15 +26,15 @@
 
 <header class="header">
   <div class="container header__inner">
-    <div class="logo">
+    <a href="#" class="logo">
       <span class="logo__mark">Sup</span><span class="logo__text">Temiz</span>
-    </div>
+    </a>
     <nav class="nav">
       <a href="#services" class="nav__link" data-i18n="nav.services">Услуги</a>
-      <a href="#pricing" class="nav__link" data-i18n="nav.pricing">Цены</a>
-      <a href="#how" class="nav__link" data-i18n="nav.how">Как это работает</a>
-      <a href="#reviews" class="nav__link" data-i18n="nav.reviews">Отзывы</a>
-      <a href="#order" class="nav__link nav__link--primary" data-i18n="nav.order">Заказать уборку</a>
+      <a href="#pricing"  class="nav__link" data-i18n="nav.pricing">Цены</a>
+      <a href="#how"      class="nav__link" data-i18n="nav.how">Как это работает</a>
+      <a href="#reviews"  class="nav__link" data-i18n="nav.reviews">Отзывы</a>
+      <a href="#order"    class="nav__link nav__link--primary" data-i18n="nav.order">Заказать уборку</a>
     </nav>
     <div class="header__right">
       <select id="langSelect" class="lang-select" aria-label="Language">
@@ -55,11 +52,12 @@
   </div>
 </header>
 
-<nav class="mobile-menu" id="mobileMenu">
+<!-- Мобильное меню — sticky, следует за хедером -->
+<nav class="mobile-menu" id="mobileMenu" aria-label="Мобильное меню">
   <a href="#services" data-i18n="nav.services">Услуги</a>
-  <a href="#pricing" data-i18n="nav.pricing">Цены</a>
-  <a href="#how" data-i18n="nav.how">Как это работает</a>
-  <a href="#reviews" data-i18n="nav.reviews">Отзывы</a>
+  <a href="#pricing"  data-i18n="nav.pricing">Цены</a>
+  <a href="#how"      data-i18n="nav.how">Как это работает</a>
+  <a href="#reviews"  data-i18n="nav.reviews">Отзывы</a>
   <a href="#order" class="primary" data-i18n="nav.order">Заказать уборку</a>
 </nav>
 
@@ -88,10 +86,10 @@
 
       <div class="hero__card">
         <h2 data-i18n="hero.calcTitle">Быстрый расчёт</h2>
-        <form id="quickQuoteForm" class="form">
+        <div class="form">
           <label class="form__field">
             <span data-i18n="form.type">Тип уборки</span>
-            <select id="quickType" required>
+            <select id="quickType">
               <option value="standard" selected data-i18n="types.standard">Стандартная</option>
               <option value="deep" data-i18n="types.deep">Генеральная</option>
               <option value="office" data-i18n="types.office">Офис</option>
@@ -99,14 +97,14 @@
           </label>
           <label class="form__field">
             <span data-i18n="form.area">Площадь, м²</span>
-            <input type="number" id="quickArea" min="20" max="300" value="" placeholder="60" />
+            <input type="number" id="quickArea" min="20" max="300" placeholder="60" />
           </label>
           <p class="form__hint" data-i18n="form.estimateLabel">Ориентировочная стоимость:</p>
           <p class="hero__price"><span id="quickPrice">—</span> ₺</p>
-          <button type="submit" class="btn btn--primary btn--full" data-i18n="hero.calcButton">
+          <a href="#order" class="btn btn--primary btn--full" data-i18n="hero.calcButton">
             Оформить заказ
-          </button>
-        </form>
+          </a>
+        </div>
       </div>
     </div>
   </section>
@@ -209,23 +207,17 @@
         <div class="step">
           <span class="step__number">1</span>
           <h3 data-i18n="how.step1.title">Оставляете заявку</h3>
-          <p data-i18n="how.step1.text">
-            Заполняете форму на сайте или пишете нам в WhatsApp.
-          </p>
+          <p data-i18n="how.step1.text">Заполняете форму на сайте или пишете нам в WhatsApp.</p>
         </div>
         <div class="step">
           <span class="step__number">2</span>
           <h3 data-i18n="how.step2.title">Уточняем детали</h3>
-          <p data-i18n="how.step2.text">
-            Перезваниваем, подтверждаем время, стоимость и адрес.
-          </p>
+          <p data-i18n="how.step2.text">Перезваниваем, подтверждаем время, стоимость и адрес.</p>
         </div>
         <div class="step">
           <span class="step__number">3</span>
           <h3 data-i18n="how.step3.title">Приезжаем и убираем</h3>
-          <p data-i18n="how.step3.text">
-            Вы отдыхаете, мы приводим помещение в идеальный порядок.
-          </p>
+          <p data-i18n="how.step3.text">Вы отдыхаете, мы приводим помещение в идеальный порядок.</p>
         </div>
       </div>
     </div>
@@ -237,21 +229,15 @@
       <h2 class="section__title" data-i18n="reviews.title">Отзывы клиентов</h2>
       <div class="grid grid--3">
         <article class="card card--review">
-          <p data-i18n="reviews.r1.text">
-            «Заказали генеральную уборку виллы в Искеле. Приехали вовремя, всё сделали за один день. Очень довольны!»
-          </p>
+          <p data-i18n="reviews.r1.text">«Заказали генеральную уборку виллы в Искеле. Приехали вовремя, всё сделали за один день. Очень довольны!»</p>
           <span class="card__author" data-i18n="reviews.r1.author">— Анна</span>
         </article>
         <article class="card card--review">
-          <p data-i18n="reviews.r2.text">
-            «Пользуемся регулярной уборкой офиса в Фамагусте. Всегда чисто, аккуратно, без напоминаний.»
-          </p>
+          <p data-i18n="reviews.r2.text">«Пользуемся регулярной уборкой офиса в Фамагусте. Всегда чисто, аккуратно, без напоминаний.»</p>
           <span class="card__author" data-i18n="reviews.r2.author">— Сергей</span>
         </article>
         <article class="card card--review">
-          <p data-i18n="reviews.r3.text">
-            «Удобно, что можно быстро посчитать стоимость и оставить заявку прямо на сайте.»
-          </p>
+          <p data-i18n="reviews.r3.text">«Удобно, что можно быстро посчитать стоимость и оставить заявку прямо на сайте.»</p>
           <span class="card__author" data-i18n="reviews.r3.author">— Мария</span>
         </article>
       </div>
@@ -277,7 +263,7 @@
       </div>
 
       <div class="order__form">
-        <form id="orderForm" class="form">
+        <form id="orderForm" class="form" novalidate>
           <label class="form__field">
             <span data-i18n="form.name">Имя</span>
             <input type="text" id="name" name="name" required minlength="2" />
@@ -296,7 +282,6 @@
           </label>
 
           <label class="form__field">
-            <!-- ИСПРАВЛЕНО: был data-i18n="form.area" — коллизия с полем площади -->
             <span data-i18n="form.region">Район / город</span>
             <input type="text" id="area" name="area" required placeholder="Iskele, Famagusta, Kyrenia..." />
           </label>
@@ -344,12 +329,7 @@
             <small data-i18n="form.estimateNote">Точная цена будет подтверждена оператором.</small>
           </div>
 
-          <button
-            type="submit"
-            class="btn btn--primary btn--full"
-            data-i18n="order.submit"
-            data-i18n-text="order.submit"
-          >
+          <button type="submit" class="btn btn--primary btn--full" data-i18n="order.submit">
             Отправить заявку
           </button>
 
@@ -379,16 +359,14 @@
         <span data-i18n="footer.phoneLabel">Телефон / WhatsApp:</span>
         <a href="tel:+905338001122">+90 533 800 11 22</a>
       </p>
-      <p>
-        Email: <a href="mailto:info@sup-temiz.com">info@sup-temiz.com</a>
-      </p>
+      <p>Email: <a href="mailto:info@sup-temiz.com">info@sup-temiz.com</a></p>
     </div>
     <div class="footer__col">
       <h4 data-i18n="footer.navTitle">Навигация</h4>
       <a href="#services" data-i18n="nav.services">Услуги</a>
-      <a href="#pricing" data-i18n="nav.pricing">Цены</a>
-      <a href="#order" data-i18n="nav.order">Заказать</a>
-      <a href="admin.html" target="_blank" rel="noopener" data-i18n="footer.admin">Админка заказов</a>
+      <a href="#pricing"  data-i18n="nav.pricing">Цены</a>
+      <a href="#order"    data-i18n="nav.order">Заказать</a>
+      <a href="admin.html" rel="noopener" data-i18n="footer.admin">Админка заказов</a>
     </div>
   </div>
   <div class="footer__bottom">
@@ -399,7 +377,7 @@
   </div>
 </footer>
 
-<div id="orderModal" class="modal" aria-hidden="true">
+<div id="orderModal" class="modal" aria-hidden="true" role="dialog" aria-modal="true">
   <div class="modal__backdrop" data-modal-close></div>
   <div class="modal__content">
     <button class="modal__close" data-modal-close aria-label="Закрыть">&times;</button>
@@ -409,7 +387,7 @@
     </p>
     <p class="modal__small">
       <span data-i18n="modal.orderId">Номер заявки:</span>
-      <span id="orderId"></span>
+      <strong id="orderId"></strong>
     </p>
     <button class="btn btn--primary" data-modal-close data-i18n="modal.ok">
       Понятно
