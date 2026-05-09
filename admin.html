@@ -9,7 +9,6 @@
 <body>
   <div class="admin-container">
 
-    <!-- ИСПРАВЛЕНО: добавлен .admin-header с кнопкой "На сайт" -->
     <div class="admin-header">
       <h1>Админка заказов</h1>
       <a href="/suptemiz-v2/" class="admin-site-link" target="_blank" rel="noopener">
@@ -22,8 +21,6 @@
     </div>
 
     <div class="admin-controls">
-
-      <!-- ИСПРАВЛЕНО: добавлены .filter-badge для счётчиков заказов -->
       <div class="admin-filters">
         <button data-status="all"         class="btn btn--filter btn--active">Все         <span class="filter-badge">0</span></button>
         <button data-status="pending"     class="btn btn--filter">В ожидании  <span class="filter-badge">0</span></button>
@@ -32,14 +29,11 @@
         <button data-status="done"        class="btn btn--filter">Завершён    <span class="filter-badge">0</span></button>
         <button data-status="cancelled"   class="btn btn--filter">Отменён     <span class="filter-badge">0</span></button>
       </div>
-
-      <!-- ИСПРАВЛЕНО: кнопки получили классы для стилизации -->
       <div class="admin-actions">
         <input type="search" id="searchInput" placeholder="Поиск по имени или телефону…" />
         <button id="refreshBtn" class="btn btn--refresh">Обновить</button>
         <button id="exportBtn"  class="btn btn--export">Экспорт в CSV</button>
       </div>
-
     </div>
 
     <div class="admin-table-wrapper">
