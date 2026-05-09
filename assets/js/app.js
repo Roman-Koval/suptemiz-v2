@@ -112,61 +112,54 @@ function initPriceCalculation() {
 }
 
 // =========================
-// Быстрая форма → переход на #order
-// =========================
-function initQuickQuoteForm() {
-  const form = document.getElementById("quickQuoteForm");
-  if (!form) return;
-
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-
-    const quickType = document.getElementById("quickType");
-    const quickArea = document.getElementById("quickArea");
-
-    // Синхронизируем значения с основной формой
-    const mainType = document.getElementById("type");
-    const mainArea = document.getElementById("areaSize");
-    if (mainType && quickType) mainType.value = quickType.value;
-    if (mainArea && quickArea && quickArea.value) mainArea.value = quickArea.value;
-    updateOrderPrice();
-
-    // Плавный скролл к форме заказа
-    const orderSection = document.getElementById("order");
-    if (orderSection) {
-      orderSection.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  });
-}
-
-// =========================
 // Telegram уведомление
 // =========================
-function sendTelegramNotification(order) {
-  const botToken = "ТВОЙ_ТОКЕН_БОТА";
-  const chatId = "ТВОЙ_CHAT_ID";
+async function sendTelegramNotification(order) {
+  // ⚠️ Замените на ваши данные:
+  const botToken = "TELEGRAM_BOT_TOKEN";   // например: 7123456789:AAF...
+  const chatId   = "TELEGRAM_CHAT_ID";     // например: -100123456789 или личный id
+
+  if (botToken === "TELEGRAM_BOT_TOKEN" || chatId === "TELEGRAM_CHAT_ID") {
+    console.warn("Telegram: токен или chat_id не настроены");
+    return;
+  }
+
+  const typeLabel = {
+    standard: "Стандартная",
+    deep: "Генеральная",
+    office: "Офис"
+  }[order.type] || order.type;
 
   const text =
-    `🧽 Новый заказ TEMIZ\n` +
-    `ID: ${order.id}\n` +
-    `Имя: ${order.name}\n` +
-    `Телефон: ${order.phone}\n` +
-    `Район: ${order.area}\n` +
-    `Тип: ${order.type}\n` +
-    `Площадь: ${order.areaSize || "-"}\n` +
-    `Цена: ${order.price} ₺\n` +
-    `Дата/время: ${order.date || "-"} ${order.time || ""}\n` +
-    `Статус: ${order.status}`;
+    `🧽 <b>Новый заказ SupTemiz</b>\n\n` +
+    `🆔 <b>ID:</b> ${order.id}\n` +
+    `👤 <b>Имя:</b> ${order.name}\n` +
+    `📱 <b>Телефон:</b> ${order.phone}\n` +
+    `📍 <b>Район:</b> ${order.area}\n` +
+    `🏠 <b>Тип:</b> ${typeLabel}\n` +
+    `📐 <b>Площадь:</b> ${order.areaSize || "—"} м²\n` +
+    `💰 <b>Цена:</b> ${order.price} ₺\n` +
+    `📅 <b>Дата:</b> ${order.date || "—"} ${order.time || ""}\n` +
+    `💬 <b>Комментарий:</b> ${order.comment || "—"}\n` +
+    `🔄 <b>Статус:</b> В ожидании`;
 
-  fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      chat_id: chatId,
-      text,
-      parse_mode: "HTML",
-    }),
-  }).catch((e) => console.warn("Telegram error", e));
+  try {
+    const resp = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text,
+        parse_mode: "HTML",
+      }),
+    });
+    const result = await resp.json();
+    if (!result.ok) {
+      console.warn("Telegram API error:", result.description);
+    }
+  } catch (e) {
+    console.warn("Telegram error:", e);
+  }
 }
 
 // =========================
@@ -189,15 +182,7 @@ function initWhatsApp() {
   const phone = "905338001122";
   const msg = "Здравствуйте! Хочу уточнить детали по уборке.";
 
-  // Устанавливаем href через JS, убираем href="#" из HTML
   wa.href = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
-  wa.removeAttribute("onclick");
-
-  // Предотвращаем перезагрузку страницы
-  wa.addEventListener("click", (e) => {
-    e.stopPropagation();
-    // href уже задан, браузер сам откроет ссылку в target="_blank"
-  });
 }
 
 // =========================
@@ -212,22 +197,25 @@ function initMenu() {
   btn.addEventListener("click", (e) => {
     e.stopPropagation();
     const isOpen = menu.classList.toggle("open");
-    btn.setAttribute("aria-expanded", String(isOpen));
+    btn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    btn.textContent = isOpen ? "✕" : "☰";
   });
 
-  // Закрываем меню при клике на ссылку
+  // Закрывать при клике по ссылке
   menu.querySelectorAll("a").forEach((link) => {
     link.addEventListener("click", () => {
       menu.classList.remove("open");
       btn.setAttribute("aria-expanded", "false");
+      btn.textContent = "☰";
     });
   });
 
-  // Закрываем меню при клике вне его
+  // Закрывать при клике вне меню
   document.addEventListener("click", (e) => {
     if (!menu.contains(e.target) && e.target !== btn) {
       menu.classList.remove("open");
       btn.setAttribute("aria-expanded", "false");
+      btn.textContent = "☰";
     }
   });
 }
@@ -251,17 +239,6 @@ function closeModal() {
   document.body.style.overflow = "";
 }
 
-function initModal() {
-  document.querySelectorAll("[data-modal-close]").forEach((el) => {
-    el.addEventListener("click", closeModal);
-  });
-
-  // Закрытие по Escape
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") closeModal();
-  });
-}
-
 // =========================
 // Обработка формы заказа
 // =========================
@@ -275,10 +252,9 @@ function initOrderForm() {
     if (!form.reportValidity()) return;
 
     const submitBtn = form.querySelector('[type="submit"]');
-    if (submitBtn) {
-      submitBtn.disabled = true;
-      submitBtn.textContent = "Отправляем...";
-    }
+    const origText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Отправляем...";
 
     const data = {
       id: "ST-" + Math.random().toString(36).substring(2, 10).toUpperCase(),
@@ -297,23 +273,29 @@ function initOrderForm() {
 
     try {
       await saveOrderToFirebase(data);
-      sendTelegramNotification(data);
+      await sendTelegramNotification(data);
 
       form.reset();
       updateOrderPrice();
 
-      const orderIdEl = document.getElementById("orderId");
-      if (orderIdEl) orderIdEl.textContent = data.id;
+      document.getElementById("orderId").textContent = data.id;
       openModal();
-    } catch (err) {
-      console.error(err);
+    } catch (e) {
+      console.error(e);
       alert("Ошибка при отправке заявки. Попробуйте ещё раз.");
     } finally {
-      if (submitBtn) {
-        submitBtn.disabled = false;
-        submitBtn.textContent = "Отправить заявку";
-      }
+      submitBtn.disabled = false;
+      submitBtn.textContent = origText;
     }
+  });
+
+  document.querySelectorAll("[data-modal-close]").forEach((el) => {
+    el.addEventListener("click", closeModal);
+  });
+
+  // Закрыть по Escape
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeModal();
   });
 }
 
@@ -351,11 +333,9 @@ document.addEventListener("DOMContentLoaded", () => {
   db = getFirestore(app);
 
   initPriceCalculation();
-  initQuickQuoteForm();
   initOrderForm();
   initWhatsApp();
   initMenu();
-  initModal();
   initPWAInstall();
 
   const yearEl = document.getElementById("year");
