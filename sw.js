@@ -8,6 +8,7 @@ const ASSETS = [
   BASE + "assets/css/styles.css",
   BASE + "assets/js/app.js",
   BASE + "assets/js/i18n.js",
+  BASE + "assets/js/firebase-config.js",
   BASE + "assets/lang/ru.json",
   BASE + "assets/lang/tr.json",
   BASE + "assets/lang/en.json",
