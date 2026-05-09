@@ -1,73 +1,282 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-  <meta charset="UTF-8" />
-  <title>Админка заказов — SupTemiz</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="assets/css/admin.css" />
-</head>
-<body>
+import { firebaseConfig } from "./firebase-config.js";
+import {
+  initializeApp
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  updateDoc,
+  deleteDoc,
+  doc,
+  query,
+  orderBy
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-<div class="admin-container">
-  <div class="admin-header">
-    <h1>Заказы SupTemiz</h1>
-    <a href="index.html" class="admin-back-link">← На сайт</a>
-  </div>
+let db = null;
+let allOrders = [];
+let currentStatusFilter = "all";
+let currentSearch = "";
 
-  <!-- Сообщение об ошибке -->
-  <div id="errorMessage" class="admin-error" style="display:none;"></div>
+function mapStatusToLabel(status) {
+  switch (status) {
+    case "pending":     return "В ожидании";
+    case "confirmed":   return "Подтверждён";
+    case "in_progress": return "В процессе";
+    case "done":        return "Завершён";
+    case "cancelled":   return "Отменён";
+    default:            return status;
+  }
+}
 
-  <!-- Индикатор загрузки -->
-  <div id="loadingIndicator" class="admin-loading" style="display:none;">
-    <span class="admin-loading__spinner"></span>
-    <span>Загрузка заказов…</span>
-  </div>
+function formatDateTime(iso) {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  return d.toLocaleString("ru-RU");
+}
 
-  <div class="admin-controls">
-    <div class="admin-filters">
-      <button data-status="all" class="btn btn--filter btn--active">Все</button>
-      <button data-status="pending" class="btn btn--filter">В ожидании</button>
-      <button data-status="confirmed" class="btn btn--filter">Подтверждён</button>
-      <button data-status="in_progress" class="btn btn--filter">В процессе</button>
-      <button data-status="done" class="btn btn--filter">Завершён</button>
-      <button data-status="cancelled" class="btn btn--filter">Отменён</button>
-    </div>
-    <div class="admin-actions">
-      <input type="text" id="searchInput" placeholder="Поиск по имени, телефону, ID..." />
-      <button id="refreshBtn" class="btn btn--secondary">Обновить</button>
-      <button id="exportBtn" class="btn btn--secondary">Экспорт в CSV</button>
-    </div>
-  </div>
+async function loadOrders() {
+  const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
+  const snap = await getDocs(q);
+  allOrders = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  render();
+}
 
-  <div class="admin-meta">
-    <span id="ordersCount"></span>
-  </div>
+function getFilteredOrders() {
+  return allOrders.filter((o) => {
+    if (currentStatusFilter !== "all" && o.status !== currentStatusFilter) return false;
+    if (!currentSearch) return true;
+    const s = currentSearch.toLowerCase();
+    return (
+      (o.name  || "").toLowerCase().includes(s) ||
+      (o.phone || "").toLowerCase().includes(s)
+    );
+  });
+}
 
-  <div class="admin-table-wrapper">
-    <table class="admin-table">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Имя</th>
-          <th>Телефон</th>
-          <th>Район</th>
-          <th>Тип</th>
-          <th>Площадь</th>
-          <th>Дата/время</th>
-          <th>Цена</th>
-          <th>Создано</th>
-          <th>Комментарий</th>
-          <th>Статус</th>
-          <th>Действия</th>
-        </tr>
-      </thead>
-      <tbody id="ordersTableBody"></tbody>
-    </table>
-  </div>
+// ─── Таблица (десктоп) ────────────────────────────────────────────────────────
+function renderTable() {
+  const tbody = document.getElementById("ordersTableBody");
+  if (!tbody) return;
+  tbody.innerHTML = "";
 
-  <div class="admin-card-list" id="ordersCardList"></div>
-</div>
+  getFilteredOrders().forEach((o) => {
+    const tr = document.createElement("tr");
 
-<script type="module" src="assets/js/admin.js"></script>
-</body>
-</html>
+    tr.innerHTML = `
+      <td>${o.id}</td>
+      <td>${o.name  || "—"}</td>
+      <td>${o.phone || "—"}</td>
+      <td>${o.area  || "—"}</td>
+      <td>${o.type  || "—"}</td>
+      <td>${o.areaSize || "—"}</td>
+      <td>${o.date  || "—"} ${o.time || ""}</td>
+      <td>${o.price || "—"}</td>
+      <td>${o.createdAtLocal ? formatDateTime(o.createdAtLocal) : "—"}</td>
+      <td>${o.comment || "—"}</td>
+      <td class="status-cell" data-status="${o.status || ''}">${mapStatusToLabel(o.status)}</td>
+      <td class="actions-cell">
+        <button class="btn-action btn-confirm"  data-action="confirm"  title="Подтвердить">✔</button>
+        <button class="btn-action btn-start"    data-action="start"    title="В процессе">▶</button>
+        <button class="btn-action btn-done"     data-action="done"     title="Завершить">✓</button>
+        <button class="btn-action btn-cancel"   data-action="cancel"   title="Отменить">✕</button>
+        <button class="btn-action btn-delete"   data-action="delete"   title="Удалить">🗑</button>
+      </td>
+    `;
+
+    tr.querySelectorAll("button").forEach((btn) => {
+      btn.addEventListener("click", () => handleAction(o, btn.dataset.action, tr));
+    });
+
+    tbody.appendChild(tr);
+  });
+}
+
+// ─── Карточки (мобайл) ────────────────────────────────────────────────────────
+function renderCards() {
+  const list = document.getElementById("ordersCardList");
+  if (!list) return;
+  list.innerHTML = "";
+
+  getFilteredOrders().forEach((o) => {
+    const card = document.createElement("div");
+    card.className = "admin-card";
+
+    card.innerHTML = `
+      <div class="admin-card__row"><span class="admin-card__label">ID</span>        <span class="admin-card__value">${o.id}</span></div>
+      <div class="admin-card__row"><span class="admin-card__label">Имя</span>       <span class="admin-card__value">${o.name  || "—"}</span></div>
+      <div class="admin-card__row"><span class="admin-card__label">Телефон</span>   <span class="admin-card__value">${o.phone || "—"}</span></div>
+      <div class="admin-card__row"><span class="admin-card__label">Район</span>     <span class="admin-card__value">${o.area  || "—"}</span></div>
+      <div class="admin-card__row"><span class="admin-card__label">Тип</span>       <span class="admin-card__value">${o.type  || "—"}</span></div>
+      <div class="admin-card__row"><span class="admin-card__label">Площадь</span>   <span class="admin-card__value">${o.areaSize || "—"}</span></div>
+      <div class="admin-card__row"><span class="admin-card__label">Дата/время</span><span class="admin-card__value">${o.date || "—"} ${o.time || ""}</span></div>
+      <div class="admin-card__row"><span class="admin-card__label">Цена</span>      <span class="admin-card__value">${o.price || "—"}</span></div>
+      <div class="admin-card__row">
+        <span class="admin-card__label">Статус</span>
+        <span class="admin-card__value status-badge" data-status="${o.status || ''}">${mapStatusToLabel(o.status)}</span>
+      </div>
+      <div class="admin-card__row"><span class="admin-card__label">Комментарий</span><span class="admin-card__value">${o.comment || "—"}</span></div>
+      <div class="admin-card__actions">
+        <button class="btn-action btn-confirm"  data-action="confirm">Подтв.</button>
+        <button class="btn-action btn-start"    data-action="start">Старт</button>
+        <button class="btn-action btn-done"     data-action="done">Готово</button>
+        <button class="btn-action btn-cancel"   data-action="cancel">Отмена</button>
+        <button class="btn-action btn-delete"   data-action="delete">Удалить</button>
+      </div>
+    `;
+
+    card.querySelectorAll("button").forEach((btn) => {
+      btn.addEventListener("click", () => handleAction(o, btn.dataset.action, card));
+    });
+
+    list.appendChild(card);
+  });
+}
+
+function render() {
+  renderTable();
+  renderCards();
+  updateStats();
+}
+
+// ─── Счётчики статусов ────────────────────────────────────────────────────────
+function updateStats() {
+  const counts = { all: allOrders.length, pending: 0, confirmed: 0, in_progress: 0, done: 0, cancelled: 0 };
+  allOrders.forEach((o) => { if (counts[o.status] !== undefined) counts[o.status]++; });
+
+  document.querySelectorAll(".btn--filter").forEach((btn) => {
+    const s = btn.dataset.status;
+    const badge = btn.querySelector(".filter-badge");
+    if (badge && counts[s] !== undefined) badge.textContent = counts[s];
+  });
+}
+
+// ─── Действия ─────────────────────────────────────────────────────────────────
+async function handleAction(order, action, rowEl) {
+  const ref = doc(db, "orders", order.id);
+
+  if (action === "delete") {
+    if (!confirm(`Удалить заказ ${order.id}?`)) return;
+    // Оптимистично убираем строку
+    rowEl?.remove();
+    allOrders = allOrders.filter((o) => o.id !== order.id);
+    updateStats();
+    try {
+      await deleteDoc(ref);
+    } catch (e) {
+      console.error("Ошибка удаления:", e);
+      alert("Не удалось удалить заказ. Обновите страницу.");
+      await loadOrders(); // восстанавливаем если ошибка
+    }
+    return;
+  }
+
+  const statusMap = {
+    confirm: "confirmed",
+    start:   "in_progress",
+    done:    "done",
+    cancel:  "cancelled"
+  };
+
+  const newStatus = statusMap[action];
+  if (!newStatus) return;
+
+  // Оптимистично обновляем локально
+  const idx = allOrders.findIndex((o) => o.id === order.id);
+  if (idx !== -1) allOrders[idx].status = newStatus;
+
+  // Обновляем ячейку статуса прямо в DOM (без полного ре-рендера)
+  const statusCells = rowEl?.querySelectorAll(".status-cell, .status-badge");
+  statusCells?.forEach((el) => {
+    el.textContent = mapStatusToLabel(newStatus);
+    el.dataset.status = newStatus;
+  });
+
+  updateStats();
+
+  try {
+    await updateDoc(ref, { status: newStatus });
+  } catch (e) {
+    console.error("Ошибка обновления статуса:", e);
+    alert("Не удалось обновить статус. Попробуйте снова.");
+    await loadOrders();
+  }
+}
+
+// ─── Фильтры и элементы управления ───────────────────────────────────────────
+function initFilters() {
+  document.querySelectorAll(".btn--filter").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".btn--filter").forEach((b) => b.classList.remove("btn--active"));
+      btn.classList.add("btn--active");
+      currentStatusFilter = btn.dataset.status;
+      render();
+    });
+  });
+
+  const searchInput = document.getElementById("searchInput");
+  if (searchInput) {
+    searchInput.addEventListener("input", () => {
+      currentSearch = searchInput.value.trim();
+      render();
+    });
+  }
+
+  const refreshBtn = document.getElementById("refreshBtn");
+  if (refreshBtn) {
+    refreshBtn.addEventListener("click", async () => {
+      refreshBtn.disabled = true;
+      refreshBtn.textContent = "Загрузка...";
+      await loadOrders();
+      refreshBtn.disabled = false;
+      refreshBtn.textContent = "Обновить";
+    });
+  }
+
+  // ─── Экспорт CSV ────────────────────────────────────────────────────────────
+  // Исправление: телефон оборачивается в ="..." чтобы Excel не конвертировал в научную нотацию
+  const exportBtn = document.getElementById("exportBtn");
+  if (exportBtn) {
+    exportBtn.addEventListener("click", () => {
+      const rows = getFilteredOrders();
+      const header = ["ID","Имя","Телефон","Район","Тип","Площадь (м²)","Дата","Время","Цена (₺)","Комментарий","Статус"];
+
+      const csvRows = rows.map((o) => {
+        // Принудительно форматируем телефон как текст для Excel
+        const phoneSafe = o.phone ? `="${o.phone}"` : "";
+        return [
+          o.id,
+          o.name     || "",
+          phoneSafe,
+          o.area     || "",
+          o.type     || "",
+          o.areaSize || "",
+          o.date     || "",
+          o.time     || "",
+          o.price    || "",
+          (o.comment || "").replace(/;/g, ","), // экранируем разделитель в комментарии
+          mapStatusToLabel(o.status)
+        ].join(";");
+      });
+
+      const csv = "\uFEFF" + [header.join(";"), ...csvRows].join("\n"); // BOM для корректной кодировки в Excel
+
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement("a");
+      a.href     = url;
+      a.download = `orders_${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+  }
+}
+
+// ─── Старт ────────────────────────────────────────────────────────────────────
+document.addEventListener("DOMContentLoaded", async () => {
+  const app = initializeApp(firebaseConfig);
+  db = getFirestore(app);
+
+  initFilters();
+  await loadOrders();
+});
