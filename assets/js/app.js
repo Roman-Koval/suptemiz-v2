@@ -115,8 +115,8 @@ function initPriceCalculation() {
 // Telegram уведомление
 // =========================
 function sendTelegramNotification(order) {
-  const botToken = "ТВОЙ_ТОКЕН_БОТА";
-  const chatId = "ТВОЙ_CHAT_ID";
+  const botToken = "8776328263:AAFW4TPDyi1CwnbprZ-S1I2Mj9bXUDL0vv8";
+  const chatId = "897174464";
 
   const text =
     `🧽 Новый заказ TEMIZ\n` +
