@@ -15,19 +15,19 @@ import {
 let db = null;
 
 // =========================
-// Расчёт стоимости
+// Расчёт стоимости (TRY)
 // =========================
 function calcPrice(type, area) {
   const rates = {
-    standard: 1.2, // €/м²
-    deep: 1.8,
-    office: 1.5
+    standard: 40,   // TRY / м²
+    deep: 60,
+    office: 50
   };
 
   const mins = {
-    standard: 40,
-    deep: 70,
-    office: 60
+    standard: 600,  // минимальный заказ в TRY
+    deep: 900,
+    office: 750
   };
 
   const rate = rates[type] || 0;
@@ -80,6 +80,13 @@ function initPriceCalculation() {
   const quickType = document.getElementById("quickType");
   const quickArea = document.getElementById("quickArea");
 
+  // Сброс значений при загрузке
+  if (quickArea) quickArea.value = "";
+  if (quickType) quickType.value = "standard";
+
+  const quickPrice = document.getElementById("quickPrice");
+  if (quickPrice) quickPrice.textContent = "—";
+
   if (quickType && quickArea) {
     quickType.addEventListener("change", () => {
       updateQuickPrice();
@@ -94,8 +101,6 @@ function initPriceCalculation() {
       if (mainArea) mainArea.value = quickArea.value;
       updateOrderPrice();
     });
-
-    updateQuickPrice();
   }
 
   const typeEl = document.getElementById("type");
@@ -104,7 +109,6 @@ function initPriceCalculation() {
   if (typeEl && areaEl) {
     typeEl.addEventListener("change", updateOrderPrice);
     areaEl.addEventListener("input", updateOrderPrice);
-    updateOrderPrice();
   }
 }
 
@@ -123,7 +127,7 @@ function sendTelegramNotification(order) {
     `Район: ${order.area}\n` +
     `Тип: ${order.type}\n` +
     `Площадь: ${order.areaSize || "-"}\n` +
-    `Цена: ${order.price} €\n` +
+    `Цена: ${order.price} ₺\n` +
     `Дата/время: ${order.date || "-"} ${order.time || ""}\n` +
     `Статус: ${order.status}`;
 
@@ -145,6 +149,33 @@ async function saveOrderToFirebase(data) {
   await addDoc(collection(db, "orders"), {
     ...data,
     createdAt: serverTimestamp()
+  });
+}
+
+// =========================
+// WhatsApp
+// =========================
+function initWhatsApp() {
+  const wa = document.getElementById("whatsappLink");
+  if (!wa) return;
+
+  const phone = "905338001122"; // твой номер
+  const msg = "Здравствуйте! Хочу уточнить детали по уборке.";
+
+  wa.href = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+}
+
+// =========================
+// Бургер-меню
+// =========================
+function initMenu() {
+  const btn = document.getElementById("menuToggle");
+  const menu = document.getElementById("mobileMenu");
+
+  if (!btn || !menu) return;
+
+  btn.addEventListener("click", () => {
+    menu.classList.toggle("open");
   });
 }
 
@@ -181,11 +212,19 @@ function initOrderForm() {
 
       form.reset();
       updateOrderPrice();
-      alert("Заявка отправлена! Мы скоро свяжемся с вами.");
+
+      document.getElementById("orderId").textContent = data.id;
+      document.getElementById("orderModal").setAttribute("aria-hidden", "false");
     } catch (e) {
       console.error(e);
       alert("Ошибка при отправке заявки. Попробуйте ещё раз.");
     }
+  });
+
+  document.querySelectorAll("[data-modal-close]").forEach((el) => {
+    el.addEventListener("click", () => {
+      document.getElementById("orderModal").setAttribute("aria-hidden", "true");
+    });
   });
 }
 
@@ -198,4 +237,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   initPriceCalculation();
   initOrderForm();
+  initWhatsApp();
+  initMenu();
+
+  document.getElementById("year").textContent = new Date().getFullYear();
 });
