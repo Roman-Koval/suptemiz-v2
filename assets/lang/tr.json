@@ -1,54 +1,136 @@
 {
-  "nav.services": "Hizmetler",
-  "nav.pricing": "Fiyatlar",
-  "nav.how": "Nasıl çalışır",
-  "nav.reviews": "Yorumlar",
-  "nav.order": "Temizlik siparişi",
-
-  "hero.title": "Kuzey Kıbrıs’ta zahmetsiz temizlik <span>SupTemiz</span>",
-  "hero.subtitle": "Daire, villa ve ofisler için profesyonel temizlik.",
-  "hero.ctaPrimary": "Temizlik siparişi",
-  "hero.ctaSecondary": "Fiyatları gör",
-  "hero.badge1": "✔ Kuzey Kıbrıs: Gazimağusa, İskele, Girne",
-  "hero.badge2": "✔ Güvenilir personel",
-  "hero.badge3": "✔ Türkçe, Rusça ve İngilizce destek",
-  "hero.calcTitle": "Hızlı hesaplama",
-  "hero.calcButton": "Sipariş ver",
-
-  "form.type": "Temizlik türü",
-  "form.area": "Alan, m²",
-  "form.estimateLabel": "Tahmini fiyat:",
-  "form.estimateNote": "Kesin fiyat operatör tarafından onaylanacaktır.",
-  "form.name": "İsim",
-  "form.phone": "Telefon (WhatsApp)",
-  "form.region": "Bölge / şehir",
-  "form.date": "Tarih",
-  "form.time": "Saat",
-  "form.comment": "Yorum",
-  "form.commentPlaceholder": "Kapı kodu, notlar, istekler",
-  "form.privacy": "Göndererek kişisel verilerin işlenmesini kabul ediyorsunuz.",
-
-  "types.standard": "Standart",
-  "types.deep": "Genel temizlik",
-  "types.office": "Ofis",
-
-  "order.title": "Sipariş ver",
-  "order.subtitle": "Formu doldurun — sizi arayacağız.",
-  "order.info1": "Kuzey Kıbrıs: Gazimağusa, İskele, Girne",
-  "order.info2": "Çalışma saatleri: 09:00–21:00",
-  "order.info3": "WhatsApp üzerinden iletişim mümkün",
-  "order.whatsapp": "WhatsApp yaz",
-  "order.submit": "Gönder",
-
-  "modal.title": "Sipariş gönderildi",
-  "modal.text": "En kısa sürede sizinle iletişime geçeceğiz.",
-  "modal.orderId": "Sipariş numarası:",
-  "modal.ok": "Tamam",
-
-  "footer.about": "Kuzey Kıbrıs’ta profesyonel temizlik.",
-  "footer.contactsTitle": "İletişim",
-  "footer.phoneLabel": "Telefon / WhatsApp:",
-  "footer.navTitle": "Navigasyon",
-  "footer.admin": "Yönetim paneli",
-  "footer.tagline": "Kuzey Kıbrıs için yapıldı"
+  "nav": {
+    "services": "Hizmetler",
+    "pricing": "Fiyatlar",
+    "how": "Nasıl çalışır",
+    "reviews": "Yorumlar",
+    "order": "Temizlik sipariş et"
+  },
+  "pwa": {
+    "install": "Yükle"
+  },
+  "hero": {
+    "title": "Kuzey Kıbrıs'ta <span>SupTemiz</span> ile sorunsuz temizlik",
+    "subtitle": "Kuzey Kıbrıs'ta daire, villa ve ofislerin profesyonel temizliği. Zamanında gelir, özenle çalışır, sadece tazelik ve düzen bırakırız.",
+    "ctaPrimary": "Temizlik sipariş et",
+    "ctaSecondary": "Fiyatlara bak",
+    "badge1": "✔ Kuzey Kıbrıs: Gazimağusa, İskele, Girne",
+    "badge2": "✔ Güvenilir personel",
+    "badge3": "✔ Rusça, Türkçe ve İngilizce destek",
+    "calcTitle": "Hızlı hesaplama",
+    "calcButton": "Sipariş oluştur"
+  },
+  "types": {
+    "standard": "Standart",
+    "deep": "Genel temizlik",
+    "office": "Ofis"
+  },
+  "form": {
+    "type": "Temizlik türü",
+    "area": "Alan, m²",
+    "region": "Bölge / şehir",
+    "name": "Ad",
+    "phone": "Telefon (WhatsApp)",
+    "date": "Tarih",
+    "time": "Saat",
+    "comment": "Yorum",
+    "commentPlaceholder": "Kapı kodu, özellikler, istekler",
+    "estimateLabel": "Tahmini maliyet:",
+    "estimateNote": "Kesin fiyat operatör tarafından onaylanacaktır.",
+    "privacy": "Butona tıklayarak kişisel verilerin işlenmesini kabul etmiş olursunuz."
+  },
+  "services": {
+    "title": "Hizmetlerimiz",
+    "subtitle": "Kuzey Kıbrıs'taki görevinize uygun temizlik formatı seçeceğiz.",
+    "standard": {
+      "title": "Standart temizlik",
+      "text": "Her gün düzeni seven kişiler için bakım temizliği.",
+      "item1": "Yüzey silme",
+      "item2": "Elektrikli süpürge ve ıslak zemin temizliği",
+      "item3": "Mutfak ve banyo temizliği"
+    },
+    "deep": {
+      "title": "Genel temizlik",
+      "text": "Tadilat, taşınma sonrası veya sıfırdan derin temizlik.",
+      "item1": "Zor erişilen yerleri yıkama",
+      "item2": "Fayans, sıhhi tesisat temizliği",
+      "item3": "Mutfak yüzeylerinin işlenmesi"
+    },
+    "office": {
+      "title": "Ofisler ve ticari alanlar",
+      "text": "Ofisler, salonlar ve ticari alanların düzenli temizliği.",
+      "item1": "Esnek program",
+      "item2": "Sabit maliyet",
+      "item3": "İş günü öncesi/sonrası çalışma"
+    }
+  },
+  "pricing": {
+    "title": "Şeffaf fiyatlar",
+    "subtitle": "Gizli ücret yok — her şey önceden görünür.",
+    "standardPrice": "40 ₺/m²'den",
+    "standardText": "Daire veya küçük villa düzenli temizliği için ideal.",
+    "standardMin": "Minimum sipariş — 600 ₺",
+    "standardTime": "Ortalama süre — 2–3 saat",
+    "deepPrice": "60 ₺/m²'den",
+    "deepText": "Ayrıntılara maksimum dikkatle derin temizlik.",
+    "deepMin": "Minimum sipariş — 900 ₺",
+    "deepTime": "Ortalama süre — 4–6 saat",
+    "officePrice": "50 ₺/m²'den",
+    "officeText": "Ofis ve ticari alanların düzenli temizliği.",
+    "officeMin": "Minimum sipariş — 750 ₺",
+    "officeTime": "Bireysel program"
+  },
+  "how": {
+    "title": "Nasıl çalışır",
+    "step1": {
+      "title": "Talep bırakın",
+      "text": "Sitedeki formu doldurun veya WhatsApp'tan yazın."
+    },
+    "step2": {
+      "title": "Ayrıntıları netleştiriyoruz",
+      "text": "Sizi arayıp zaman, maliyet ve adresi onaylıyoruz."
+    },
+    "step3": {
+      "title": "Geliyoruz ve temizliyoruz",
+      "text": "Siz dinlenin, biz mekânı mükemmel düzene sokuyoruz."
+    }
+  },
+  "reviews": {
+    "title": "Müşteri yorumları",
+    "r1": {
+      "text": "«İskele'deki villada genel temizlik sipariş ettik. Zamanında geldiler, her şeyi bir günde hallettiler. Çok memnunuz!»",
+      "author": "— Anna"
+    },
+    "r2": {
+      "text": "«Gazimağusa'daki ofisimizde düzenli temizlik kullanıyoruz. Her zaman temiz, düzenli, hatırlatmaya gerek kalmıyor.»",
+      "author": "— Sergey"
+    },
+    "r3": {
+      "text": "«Maliyeti hızlıca hesaplayıp doğrudan siteden talep bırakabilmek çok pratik.»",
+      "author": "— Maria"
+    }
+  },
+  "order": {
+    "title": "Sipariş oluştur",
+    "subtitle": "Formu doldurun — size ulaşıp ayrıntıları netleştireceğiz ve zamanı onaylayacağız.",
+    "info1": "Kuzey Kıbrıs'ta çalışıyoruz: Gazimağusa, İskele, Girne ve çevresi",
+    "info2": "Program: her gün 09:00–21:00",
+    "info3": "WhatsApp'tan detayları görüşebilirsiniz",
+    "whatsapp": "WhatsApp'ta yaz",
+    "submit": "Talebi gönder"
+  },
+  "footer": {
+    "about": "Kuzey Kıbrıs'ta daire, villa ve ofislerin profesyonel temizliği.",
+    "contactsTitle": "İletişim",
+    "phoneLabel": "Telefon / WhatsApp:",
+    "navTitle": "Gezinme",
+    "admin": "Sipariş yönetimi",
+    "tagline": "Kuzey Kıbrıs için yapıldı"
+  },
+  "modal": {
+    "title": "Talep gönderildi",
+    "text": "Teşekkürler! Talebinizi aldık, onay için en kısa sürede sizinle iletişime geçeceğiz.",
+    "orderId": "Sipariş numarası:",
+    "ok": "Tamam"
+  }
 }
