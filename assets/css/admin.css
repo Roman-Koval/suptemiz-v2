@@ -6,186 +6,247 @@ body {
 }
 
 .admin-container {
-  max-width: 1200px;
+  max-width: 1300px;
   margin: 0 auto;
   padding: 1rem;
 }
 
-h1 {
-  margin-bottom: 1rem;
-  font-size: 1.4rem;
+/* Шапка */
+.admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0 16px;
+  border-bottom: 1px solid #1f2937;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
-/* ========================= */
-/* Toolbar                   */
-/* ========================= */
+.admin-header__logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #e5e7eb;
+  text-decoration: none;
+}
 
-.admin-controls {
+.admin-header__logo .logo__mark {
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: radial-gradient(circle at 0 0, #22c55e, #0f766e);
+  color: #ecfeff;
+  font-size: 13px;
+}
+
+.admin-header__title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #e5e7eb;
+  margin: 0;
+}
+
+.admin-header__back {
+  padding: 6px 14px;
+  border-radius: 8px;
+  background: rgba(148, 163, 184, 0.12);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  color: #e5e7eb;
+  text-decoration: none;
+  font-size: 13px;
+  transition: background 0.15s;
+}
+
+.admin-header__back:hover {
+  background: rgba(148, 163, 184, 0.22);
+  color: #fff;
+}
+
+/* Статистика */
+.admin-stats {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+  gap: 10px;
+  padding: 10px 14px;
+  background: rgba(15, 23, 42, 0.8);
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  font-size: 13px;
+  color: #9ca3af;
+  margin-bottom: 14px;
+}
+
+.admin-stats b {
+  color: #e5e7eb;
+}
+
+/* Toolbar */
+.admin-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: space-between;
   align-items: center;
+  margin-bottom: 14px;
 }
 
 .admin-filters {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 6px;
 }
 
-.admin-actions {
+.admin-right {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-left: auto;
+  gap: 8px;
   align-items: center;
 }
 
-.admin-actions input,
 .admin-search {
-  padding: 0.4rem 0.6rem;
+  padding: 6px 10px;
   border-radius: 6px;
   border: 1px solid #4b5563;
   background: #020617;
   color: #f9fafb;
-  font-size: 0.85rem;
+  font-size: 13px;
 }
 
-/* ========================= */
-/* Buttons                   */
-/* ========================= */
-
+/* Кнопки фильтра */
 .btn {
-  padding: 0.35rem 0.7rem;
+  padding: 5px 12px;
   border-radius: 6px;
   border: none;
   cursor: pointer;
-  font-size: 0.85rem;
+  font-size: 13px;
   font-weight: 500;
-  transition: opacity 0.15s, transform 0.1s;
-}
-
-.btn:hover {
-  opacity: 0.85;
-  transform: translateY(-1px);
 }
 
 .btn--filter {
   background: #1e293b;
   color: #e5e7eb;
+  border: 1px solid #374151;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
 }
 
 .btn--filter.btn--active {
   background: #0f766e;
   color: #ecfeff;
+  border-color: #0f766e;
 }
 
-.btn--sm {
-  padding: 0.25rem 0.5rem;
-  font-size: 0.78rem;
-}
-
-.btn--confirm  { background: #2563eb; color: #fff; }
-.btn--start    { background: #7c3aed; color: #fff; }
-.btn--done     { background: #059669; color: #fff; }
-.btn--cancel   { background: #d97706; color: #fff; }
-.btn--delete   { background: #dc2626; color: #fff; }
-
-.btn--refresh  { background: #1e293b; color: #e5e7eb; }
-.btn--export   { background: #0f766e; color: #ecfeff; }
-
-/* ========================= */
-/* Status badges             */
-/* ========================= */
-
-.status {
+.filter-count {
   display: inline-block;
-  padding: 2px 8px;
+  background: rgba(255,255,255,0.2);
   border-radius: 999px;
-  font-size: 0.72rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  white-space: nowrap;
+  padding: 0 6px;
+  font-size: 11px;
+  font-weight: 700;
+  min-width: 18px;
+  text-align: center;
 }
 
-.status-pending     { background: #fbbf24; color: #1f2937; }
-.status-confirmed   { background: #3b82f6; color: #fff; }
-.status-in_progress { background: #8b5cf6; color: #fff; }
-.status-done        { background: #10b981; color: #fff; }
-.status-cancelled   { background: #ef4444; color: #fff; }
-
-/* ========================= */
-/* Table                     */
-/* ========================= */
-
+/* Таблица */
 .admin-table-wrapper {
   width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   margin-bottom: 1rem;
-  border-radius: 8px;
+  border-radius: 10px;
   border: 1px solid #1f2937;
 }
 
 .admin-table {
   width: max-content;
-  min-width: 900px;
+  min-width: 960px;
   border-collapse: collapse;
-  font-size: 0.8rem;
+  font-size: 12px;
+  color: #e5e7eb;
 }
 
 .admin-table th,
 .admin-table td {
-  border: 1px solid #1f2937;
-  padding: 0.45rem 0.6rem;
+  border-bottom: 1px solid #1f2937;
+  border-right: 1px solid #1f2937;
+  padding: 7px 9px;
   white-space: nowrap;
-  vertical-align: middle;
+  vertical-align: top;
+  text-align: left;
+}
+
+.admin-table th:last-child,
+.admin-table td:last-child {
+  border-right: none;
 }
 
 .admin-table th {
   background: #111827;
+  font-weight: 600;
   position: sticky;
   top: 0;
-  z-index: 1;
-  font-weight: 600;
-  color: #9ca3af;
-  text-transform: uppercase;
-  font-size: 0.72rem;
-  letter-spacing: 0.04em;
+}
+
+.admin-table tr:nth-child(even) td {
+  background: rgba(15, 23, 42, 0.45);
 }
 
 .admin-table tr:hover td {
-  background: rgba(15, 118, 110, 0.12);
+  background: rgba(30, 64, 175, 0.2);
 }
 
-.admin-table .admin-actions {
+/* Кнопки действий */
+.admin-actions-cell {
   display: flex;
   gap: 4px;
-  align-items: center;
-  margin-left: 0;
+  flex-wrap: nowrap;
 }
 
-.admin-empty {
-  text-align: center;
-  color: #6b7280;
-  padding: 2rem;
+.act-btn {
+  padding: 3px 7px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 600;
+  transition: opacity 0.15s, transform 0.1s;
+  white-space: nowrap;
 }
 
-/* ========================= */
-/* Status bar                */
-/* ========================= */
-
-#adminStatus {
-  font-size: 0.78rem;
-  color: #6b7280;
+.act-btn:hover {
+  opacity: 0.85;
+  transform: translateY(-1px);
 }
 
-/* ========================= */
-/* Mobile: cards             */
-/* ========================= */
+.act-confirm { background: #3b82f6; color: white; }
+.act-start   { background: #6366f1; color: white; }
+.act-done    { background: #10b981; color: white; }
+.act-cancel  { background: #f59e0b; color: #1f2937; }
+.act-delete  { background: #ef4444; color: white; }
 
+/* Status badges */
+.status {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  white-space: nowrap;
+  letter-spacing: 0.03em;
+}
+
+.status-pending     { background: #fbbf24; color: #1f2937; }
+.status-confirmed   { background: #3b82f6; color: white; }
+.status-in_progress { background: #6366f1; color: white; }
+.status-done        { background: #10b981; color: white; }
+.status-cancelled   { background: #ef4444; color: white; }
+
+/* Карточки (мобайл) */
 .admin-card-list {
   display: none;
 }
@@ -198,23 +259,35 @@ h1 {
   .admin-card-list {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 12px;
   }
 
   .admin-card {
     border-radius: 10px;
     background: #020617;
-    padding: 0.8rem 1rem;
+    padding: 12px 14px;
     border: 1px solid #1f2937;
+  }
+
+  .admin-card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .admin-card__id {
+    font-weight: 700;
+    font-size: 13px;
+    color: #a5b4fc;
   }
 
   .admin-card__row {
     display: flex;
     justify-content: space-between;
-    gap: 0.5rem;
-    font-size: 0.82rem;
-    margin-bottom: 0.3rem;
-    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    margin-bottom: 5px;
   }
 
   .admin-card__label {
@@ -230,18 +303,12 @@ h1 {
   .admin-card__actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.4rem;
-    margin-top: 0.6rem;
-    padding-top: 0.6rem;
-    border-top: 1px solid #1f2937;
+    gap: 6px;
+    margin-top: 10px;
   }
 
-  .admin-card__actions button {
-    flex: 1 1 auto;
-    min-width: 70px;
-  }
-
-  h1 {
-    font-size: 1.1rem;
+  .act-btn {
+    font-size: 12px;
+    padding: 5px 10px;
   }
 }
