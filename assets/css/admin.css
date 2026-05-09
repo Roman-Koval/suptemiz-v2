@@ -20,7 +20,7 @@ body {
 }
 
 /* ═══════════════════════════════════════
-   Header / nav-bar
+   Header
 ═══════════════════════════════════════ */
 .admin-header {
   display: flex;
@@ -65,7 +65,7 @@ body {
 }
 
 /* ═══════════════════════════════════════
-   Controls row
+   Controls
 ═══════════════════════════════════════ */
 .admin-controls {
   display: flex;
@@ -97,7 +97,7 @@ body {
   background: #020617;
   color: #f9fafb;
   font-size: 0.85rem;
-  min-width: 180px;
+  min-width: 200px;
   transition: border-color 0.15s;
 }
 
@@ -113,7 +113,7 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-  padding: 0.38rem 0.75rem;
+  padding: 0.38rem 0.8rem;
   border-radius: 6px;
   border: none;
   cursor: pointer;
@@ -123,21 +123,15 @@ body {
   white-space: nowrap;
 }
 
-.btn:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
+.btn:disabled { opacity: 0.55; cursor: not-allowed; }
 
-/* Filter buttons */
+/* Filter */
 .btn--filter {
   background: #1e293b;
   color: #cbd5e1;
   border: 1px solid #334155;
-  position: relative;
 }
-
 .btn--filter:hover { background: #293548; }
-
 .btn--filter.btn--active {
   background: #0f766e;
   color: #ecfeff;
@@ -153,12 +147,12 @@ body {
   padding: 0 4px;
   border-radius: 999px;
   background: rgba(255,255,255,0.15);
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   font-weight: 700;
   line-height: 1;
 }
 
-/* Action buttons (utility) */
+/* Utility */
 .btn--refresh { background: #1e40af; color: #fff; }
 .btn--refresh:hover { background: #1d4ed8; }
 
@@ -197,24 +191,20 @@ body {
   color: #9ca3af;
   font-weight: 600;
   text-transform: uppercase;
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   letter-spacing: 0.04em;
-  position: sticky;
-  top: 0;
-  z-index: 1;
 }
 
 .admin-table tbody tr:hover td { background: #111827; }
 
-/* Статус в таблице */
-.status-cell {
+/* ═══════════════════════════════════════
+   Статус-бейджи
+═══════════════════════════════════════ */
+.status-cell, .status-badge {
   font-weight: 600;
-  font-size: 0.75rem;
+  font-size: 0.78rem;
 }
 
-/* ═══════════════════════════════════════
-   Статус-бейджи (цвета)
-═══════════════════════════════════════ */
 [data-status="pending"]     { color: #fbbf24; }
 [data-status="confirmed"]   { color: #60a5fa; }
 [data-status="in_progress"] { color: #a78bfa; }
@@ -222,12 +212,11 @@ body {
 [data-status="cancelled"]   { color: #f87171; }
 
 /* ═══════════════════════════════════════
-   Action buttons (в ячейке/карточке)
+   Action buttons
 ═══════════════════════════════════════ */
 .actions-cell {
   display: flex;
   gap: 0.25rem;
-  flex-wrap: nowrap;
 }
 
 .btn-action {
@@ -238,47 +227,27 @@ body {
   border-radius: 5px;
   border: 1px solid transparent;
   cursor: pointer;
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   font-weight: 600;
   transition: background 0.15s, transform 0.1s;
   white-space: nowrap;
 }
 
-.btn-action:active { transform: scale(0.93); }
+.btn-action:active { transform: scale(0.92); }
 
-.btn-confirm {
-  background: #1e3a5f;
-  color: #93c5fd;
-  border-color: #1e40af;
-}
+.btn-confirm { background: #1e3a5f; color: #93c5fd; border-color: #1e40af; }
 .btn-confirm:hover { background: #1e40af; color: #fff; }
 
-.btn-start {
-  background: #2d1b69;
-  color: #c4b5fd;
-  border-color: #6d28d9;
-}
+.btn-start { background: #2d1b69; color: #c4b5fd; border-color: #6d28d9; }
 .btn-start:hover { background: #6d28d9; color: #fff; }
 
-.btn-done {
-  background: #064e3b;
-  color: #6ee7b7;
-  border-color: #047857;
-}
+.btn-done { background: #064e3b; color: #6ee7b7; border-color: #047857; }
 .btn-done:hover { background: #047857; color: #fff; }
 
-.btn-cancel {
-  background: #3b1c1c;
-  color: #fca5a5;
-  border-color: #b91c1c;
-}
+.btn-cancel { background: #3b1c1c; color: #fca5a5; border-color: #b91c1c; }
 .btn-cancel:hover { background: #b91c1c; color: #fff; }
 
-.btn-delete {
-  background: #1c1c1c;
-  color: #9ca3af;
-  border-color: #374151;
-}
+.btn-delete { background: #1c1c1c; color: #9ca3af; border-color: #374151; }
 .btn-delete:hover { background: #374151; color: #f87171; }
 
 /* ═══════════════════════════════════════
@@ -297,17 +266,34 @@ body {
 
   .admin-card {
     border-radius: 10px;
-    background: #020617;
-    padding: 0.85rem 1rem;
+    background: #0f172a;
+    padding: 0.9rem 1rem;
     border: 1px solid #1f2937;
+  }
+
+  /* Шапка карточки: ID + статус в одну строку */
+  .admin-card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.6rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #1f2937;
+    gap: 0.5rem;
+  }
+
+  .admin-card__id {
+    font-size: 0.7rem;
+    color: #6b7280;
+    word-break: break-all;
   }
 
   .admin-card__row {
     display: flex;
     justify-content: space-between;
     gap: 0.5rem;
-    font-size: 0.8rem;
-    margin-bottom: 0.3rem;
+    font-size: 0.82rem;
+    margin-bottom: 0.28rem;
     align-items: flex-start;
   }
 
@@ -327,26 +313,24 @@ body {
     display: flex;
     flex-wrap: wrap;
     gap: 0.35rem;
-    margin-top: 0.6rem;
-    padding-top: 0.6rem;
+    margin-top: 0.7rem;
+    padding-top: 0.65rem;
     border-top: 1px solid #1f2937;
   }
 
   .admin-card__actions .btn-action {
     flex: 1 1 auto;
-    min-width: 60px;
+    min-width: 80px;
     justify-content: center;
-    padding: 0.4rem 0.5rem;
-    font-size: 0.75rem;
+    padding: 0.45rem 0.5rem;
+    font-size: 0.78rem;
   }
 
-  .admin-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .admin-actions { margin-left: 0; }
-  .admin-actions input { min-width: 100%; }
+  /* Controls адаптив */
+  .admin-header { flex-direction: column; align-items: flex-start; }
+  .admin-actions { margin-left: 0; width: 100%; }
+  .admin-actions input { min-width: 100%; width: 100%; }
+  .admin-controls { flex-direction: column; align-items: flex-start; }
 }
 
 /* ═══════════════════════════════════════
@@ -354,7 +338,7 @@ body {
 ═══════════════════════════════════════ */
 .admin-empty {
   text-align: center;
-  padding: 2rem;
+  padding: 2.5rem;
   color: #4b5563;
   font-size: 0.9rem;
 }
