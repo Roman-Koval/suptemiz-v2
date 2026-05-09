@@ -55,14 +55,20 @@ self.addEventListener("activate", (event) => {
 
 // Fetch — стратегия: сначала сеть, fallback на кэш
 self.addEventListener("fetch", (event) => {
-  // Игнорируем не-GET запросы и запросы к Firebase/Telegram/внешним сервисам
+  // Игнорируем не-GET запросы
   if (event.request.method !== "GET") return;
 
   const url = new URL(event.request.url);
+
+  // Кэшируем только http/https — chrome-extension://, data:, blob: не поддерживаются Cache API
+  if (url.protocol !== "http:" && url.protocol !== "https:") return;
+
+  // Игнорируем запросы к Firebase, Google APIs, Telegram
   const isExternal =
-    url.hostname.includes("firebase") ||
-    url.hostname.includes("googleapis") ||
-    url.hostname.includes("gstatic") ||
+    url.hostname.includes("firebaseio") ||
+    url.hostname.includes("firestore.googleapis") ||
+    url.hostname.includes("identitytoolkit") ||
+    url.hostname.includes("gstatic.com") ||
     url.hostname.includes("api.telegram.org");
 
   if (isExternal) return;
@@ -70,8 +76,13 @@ self.addEventListener("fetch", (event) => {
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        // Сохраняем успешный ответ в кэш
-        if (response && response.status === 200 && response.type === "basic") {
+        // Сохраняем успешный ответ в кэш (только http/https, только basic)
+        if (
+          response &&
+          response.status === 200 &&
+          response.type === "basic" &&
+          new URL(event.request.url).protocol.startsWith("http")
+        ) {
           const clone = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
         }
