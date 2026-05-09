@@ -126,8 +126,9 @@ function initPriceCalculation() {
 // ЗАМЕНИ TG_BOT_TOKEN и TG_CHAT_ID на свои реальные значения!
 // Токен берётся у @BotFather, chatId — у @userinfobot
 // =========================
-const TG_BOT_TOKEN = "СЮДА_ТОКЕН_БОТА";  // пример: 7123456789:AAHxxx...
-const TG_CHAT_ID   = "СЮДА_CHAT_ID";     // пример: 123456789 или -1001234567890
+function sendTelegramNotification(order) {
+  const botToken = "8776328263:AAFW4TPDyi1CwnbprZ-S1I2Mj9bXUDL0vv8";
+  const chatId = "897174464";
 
 function sendTelegramNotification(order) {
   if (TG_BOT_TOKEN.startsWith("СЮДА") || TG_CHAT_ID.startsWith("СЮДА")) {
