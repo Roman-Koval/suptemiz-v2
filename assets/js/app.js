@@ -225,7 +225,7 @@ function initOrderForm() {
       alert("Ошибка при отправке заявки. Попробуйте ещё раз.");
     }
   });
-
+document.getElementById("date").min = new Date().toISOString().split("T")[0];
   document.querySelectorAll("[data-modal-close]").forEach((el) => {
     el.addEventListener("click", () => {
       document.getElementById("orderModal").setAttribute("aria-hidden", "true");
