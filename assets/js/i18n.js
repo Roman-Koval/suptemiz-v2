@@ -4,7 +4,7 @@ let translations = {};
 
 async function loadLang(lang) {
   try {
-    const res = await fetch(`assets/lang/${lang}.json`);
+    const res = await fetch(`/suptemiz-v2/assets/lang/${lang}.json`);
     translations = await res.json();
     currentLang = lang;
     localStorage.setItem(LANG_STORAGE_KEY, lang);
