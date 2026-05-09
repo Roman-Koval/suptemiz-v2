@@ -50,6 +50,14 @@
     </div>
   </header>
 
+  <nav class="mobile-menu" id="mobileMenu">
+    <a href="#services" data-i18n="nav.services">Услуги</a>
+    <a href="#pricing" data-i18n="nav.pricing">Цены</a>
+    <a href="#how" data-i18n="nav.how">Как это работает</a>
+    <a href="#reviews" data-i18n="nav.reviews">Отзывы</a>
+    <a href="#order" class="primary" data-i18n="nav.order">Заказать уборку</a>
+  </nav>
+
   <main>
     <!-- Hero -->
     <section class="hero">
@@ -84,10 +92,10 @@
             </label>
             <label class="form__field">
               <span data-i18n="form.area">Площадь, м²</span>
-              <input type="number" id="quickArea" min="20" max="300" value="60" required />
+              <input type="number" id="quickArea" min="20" max="300" value="" required />
             </label>
             <p class="form__hint" data-i18n="form.estimateLabel">Ориентировочная стоимость:</p>
-            <p class="hero__price"><span id="quickPrice">—</span> €</p>
+            <p class="hero__price"><span id="quickPrice">—</span> ₺</p>
             <button type="submit" class="btn btn--primary btn--full" data-i18n="hero.calcButton">
               Оформить заказ
             </button>
@@ -151,34 +159,34 @@
         <div class="grid grid--3">
           <article class="card card--pricing">
             <h3 data-i18n="types.standard">Стандартная</h3>
-            <p class="card__price" data-i18n="pricing.standardPrice">от 1.2 €/м²</p>
+            <p class="card__price" data-i18n="pricing.standardPrice">от 40 ₺/м²</p>
             <p data-i18n="pricing.standardText">
               Идеально для регулярной уборки квартиры или небольшой виллы.
             </p>
             <ul class="list">
-              <li data-i18n="pricing.standardMin">Минимальный заказ — 40 €</li>
+              <li data-i18n="pricing.standardMin">Минимальный заказ — 600 ₺</li>
               <li data-i18n="pricing.standardTime">Среднее время — 2–3 часа</li>
             </ul>
           </article>
           <article class="card card--pricing card--accent">
             <h3 data-i18n="types.deep">Генеральная</h3>
-            <p class="card__price" data-i18n="pricing.deepPrice">от 1.8 €/м²</p>
+            <p class="card__price" data-i18n="pricing.deepPrice">от 60 ₺/м²</p>
             <p data-i18n="pricing.deepText">
               Глубокая уборка с максимальным вниманием к деталям.
             </p>
             <ul class="list">
-              <li data-i18n="pricing.deepMin">Минимальный заказ — 70 €</li>
+              <li data-i18n="pricing.deepMin">Минимальный заказ — 900 ₺</li>
               <li data-i18n="pricing.deepTime">Среднее время — 4–6 часов</li>
             </ul>
           </article>
           <article class="card card--pricing">
             <h3 data-i18n="types.office">Офис</h3>
-            <p class="card__price" data-i18n="pricing.officePrice">от 1.5 €/м²</p>
+            <p class="card__price" data-i18n="pricing.officePrice">от 50 ₺/м²</p>
             <p data-i18n="pricing.officeText">
               Регулярная уборка офисов и коммерческих помещений.
             </p>
             <ul class="list">
-              <li data-i18n="pricing.officeMin">Минимальный заказ — 60 €</li>
+              <li data-i18n="pricing.officeMin">Минимальный заказ — 750 ₺</li>
               <li data-i18n="pricing.officeTime">Индивидуальный график</li>
             </ul>
           </article>
@@ -304,13 +312,19 @@
             </label>
             <label class="form__field">
               <span data-i18n="form.comment">Комментарий</span>
-              <textarea id="comment" name="comment" rows="3" data-i18n-placeholder="form.commentPlaceholder" placeholder="Код от домофона, особенности, пожелания"></textarea>
+              <textarea
+                id="comment"
+                name="comment"
+                rows="3"
+                data-i18n-placeholder="form.commentPlaceholder"
+                placeholder="Код от домофона, особенности, пожелания"
+              ></textarea>
             </label>
 
             <div class="form__summary">
               <div>
                 <span class="form__summary-label" data-i18n="form.estimateLabel">Ориентировочная стоимость:</span>
-                <span class="form__summary-value"><span id="orderPrice">—</span> €</span>
+                <span class="form__summary-value"><span id="orderPrice">—</span> ₺</span>
               </div>
               <small data-i18n="form.estimateNote">Точная цена будет подтверждена оператором.</small>
             </div>
@@ -381,6 +395,7 @@
     </div>
   </div>
 
+  <script src="assets/js/i18n.js"></script>
   <script type="module" src="assets/js/app.js"></script>
 </body>
 </html>
