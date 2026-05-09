@@ -18,69 +18,89 @@ let allOrders = [];
 let currentStatusFilter = "all";
 let currentSearch = "";
 
+// =========================
+// Helpers
+// =========================
 function mapStatusToLabel(status) {
-  switch (status) {
-    case "pending":    return "В ожидании";
-    case "confirmed":  return "Подтверждён";
-    case "in_progress": return "В процессе";
-    case "done":       return "Завершён";
-    case "cancelled":  return "Отменён";
-    default:           return status || "—";
-  }
-}
-
-function mapTypeToLabel(type) {
-  switch (type) {
-    case "standard": return "Стандартная";
-    case "deep":     return "Генеральная";
-    case "office":   return "Офис";
-    default:         return type || "—";
-  }
+  const map = {
+    pending:     "В ожидании",
+    confirmed:   "Подтверждён",
+    in_progress: "В процессе",
+    done:        "Завершён",
+    cancelled:   "Отменён",
+  };
+  return map[status] || status || "—";
 }
 
 function formatDateTime(iso) {
   if (!iso) return "—";
-  try {
-    return new Date(iso).toLocaleString("ru-RU");
-  } catch {
-    return "—";
-  }
+  return new Date(iso).toLocaleString("ru-RU");
 }
 
-// Показать/скрыть loader
-function setLoading(visible) {
-  const loader = document.getElementById("loadingIndicator");
-  if (loader) loader.style.display = visible ? "flex" : "none";
+// =========================
+// Кастомный диалог подтверждения
+// ИСПРАВЛЕНО: window.confirm() блокируется на мобильных браузерах
+// в iframe/GitHub Pages → заменяем на свой модал
+// =========================
+function showConfirm(message) {
+  return new Promise((resolve) => {
+    // Создаём диалог один раз
+    let dlg = document.getElementById("_confirmDialog");
+    if (!dlg) {
+      dlg = document.createElement("div");
+      dlg.id = "_confirmDialog";
+      dlg.style.cssText = `
+        display:none; position:fixed; inset:0; z-index:99999;
+        background:rgba(0,0,0,.65); align-items:center; justify-content:center;
+      `;
+      dlg.innerHTML = `
+        <div style="
+          background:#1e293b; border:1px solid #334155; border-radius:12px;
+          padding:1.5rem 2rem; max-width:340px; width:90%; text-align:center;
+          color:#f9fafb; font-family:system-ui,sans-serif;
+        ">
+          <p id="_confirmMsg" style="margin:0 0 1.25rem; font-size:1rem; line-height:1.5"></p>
+          <div style="display:flex; gap:.75rem; justify-content:center">
+            <button id="_confirmNo"  style="
+              padding:.5rem 1.25rem; border-radius:6px; border:1px solid #475569;
+              background:#0f172a; color:#cbd5e1; cursor:pointer; font-size:.9rem;
+            ">Отмена</button>
+            <button id="_confirmYes" style="
+              padding:.5rem 1.25rem; border-radius:6px; border:none;
+              background:#b91c1c; color:#fff; cursor:pointer; font-size:.9rem; font-weight:600;
+            ">Удалить</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(dlg);
+    }
+
+    document.getElementById("_confirmMsg").textContent = message;
+    dlg.style.display = "flex";
+
+    const yes = document.getElementById("_confirmYes");
+    const no  = document.getElementById("_confirmNo");
+
+    const cleanup = (result) => {
+      dlg.style.display = "none";
+      yes.replaceWith(yes.cloneNode(true)); // снимаем старые listeners
+      no.replaceWith(no.cloneNode(true));
+      resolve(result);
+    };
+
+    document.getElementById("_confirmYes").addEventListener("click", () => cleanup(true),  { once: true });
+    document.getElementById("_confirmNo") .addEventListener("click", () => cleanup(false), { once: true });
+  });
 }
 
-// Показать сообщение об ошибке
-function showError(msg) {
-  const el = document.getElementById("errorMessage");
-  if (el) {
-    el.textContent = msg;
-    el.style.display = "block";
-  }
-}
-
-function hideError() {
-  const el = document.getElementById("errorMessage");
-  if (el) el.style.display = "none";
-}
-
+// =========================
+// Загрузка заказов
+// =========================
 async function loadOrders() {
-  setLoading(true);
-  hideError();
-  try {
-    const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
-    const snap = await getDocs(q);
-    allOrders = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-    render();
-  } catch (err) {
-    console.error("Ошибка загрузки заказов:", err);
-    showError("Не удалось загрузить заказы. Проверьте подключение и попробуйте снова.");
-  } finally {
-    setLoading(false);
-  }
+  const q    = query(collection(db, "orders"), orderBy("createdAt", "desc"));
+  const snap = await getDocs(q);
+  allOrders  = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  render();
 }
 
 function getFilteredOrders() {
@@ -89,108 +109,102 @@ function getFilteredOrders() {
     if (!currentSearch) return true;
     const s = currentSearch.toLowerCase();
     return (
-      (o.id || "").toLowerCase().includes(s) ||
-      (o.name || "").toLowerCase().includes(s) ||
-      (o.phone || "").toLowerCase().includes(s) ||
-      (o.area || "").toLowerCase().includes(s)
+      (o.name  || "").toLowerCase().includes(s) ||
+      (o.phone || "").toLowerCase().includes(s)
     );
   });
 }
 
-function statusClass(status) {
-  const map = {
-    pending: "status--pending",
-    confirmed: "status--confirmed",
-    in_progress: "status--in-progress",
-    done: "status--done",
-    cancelled: "status--cancelled"
-  };
-  return map[status] || "";
-}
-
+// =========================
+// Рендер таблицы (десктоп)
+// =========================
 function renderTable() {
   const tbody = document.getElementById("ordersTableBody");
   if (!tbody) return;
-
-  const orders = getFilteredOrders();
   tbody.innerHTML = "";
 
-  if (orders.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="12" style="text-align:center;padding:2rem;color:#6b7280;">Заказов не найдено</td></tr>`;
+  const orders = getFilteredOrders();
+  if (!orders.length) {
+    tbody.innerHTML = `<tr><td colspan="12" class="admin-empty">Заказов не найдено</td></tr>`;
     return;
   }
 
   orders.forEach((o) => {
     const tr = document.createElement("tr");
+    tr.dataset.orderId = o.id;
+
     tr.innerHTML = `
-      <td title="${o.id}">${o.id}</td>
-      <td>${escHtml(o.name)}</td>
-      <td>${escHtml(o.phone)}</td>
-      <td>${escHtml(o.area)}</td>
-      <td>${mapTypeToLabel(o.type)}</td>
+      <td>${o.id}</td>
+      <td>${o.name     || "—"}</td>
+      <td>${o.phone    || "—"}</td>
+      <td>${o.area     || "—"}</td>
+      <td>${o.type     || "—"}</td>
       <td>${o.areaSize || "—"}</td>
-      <td>${escHtml(o.date)} ${escHtml(o.time)}</td>
-      <td>${o.price ? o.price + " ₺" : "—"}</td>
+      <td>${o.date     || "—"} ${o.time || ""}</td>
+      <td>${o.price    || "—"}</td>
       <td>${o.createdAtLocal ? formatDateTime(o.createdAtLocal) : "—"}</td>
-      <td title="${escHtml(o.comment)}">${escHtml(o.comment, 40)}</td>
-      <td><span class="status-badge ${statusClass(o.status)}">${mapStatusToLabel(o.status)}</span></td>
+      <td>${o.comment  || "—"}</td>
+      <td class="status-cell" data-status="${o.status || ''}">${mapStatusToLabel(o.status)}</td>
       <td class="actions-cell">
-        <button class="btn-action btn-action--confirm" data-action="confirm" title="Подтвердить">✔</button>
-        <button class="btn-action btn-action--start" data-action="start" title="В процессе">▶</button>
-        <button class="btn-action btn-action--done" data-action="done" title="Завершить">✓</button>
-        <button class="btn-action btn-action--cancel" data-action="cancel" title="Отменить">✕</button>
-        <button class="btn-action btn-action--delete" data-action="delete" title="Удалить">🗑</button>
+        <button class="btn-action btn-confirm"  data-action="confirm"  title="Подтвердить">✔</button>
+        <button class="btn-action btn-start"    data-action="start"    title="В процессе">▶</button>
+        <button class="btn-action btn-done"     data-action="done"     title="Завершить">✓</button>
+        <button class="btn-action btn-cancel"   data-action="cancel"   title="Отменить">✕</button>
+        <button class="btn-action btn-delete"   data-action="delete"   title="Удалить">🗑</button>
       </td>
     `;
 
-    tr.querySelectorAll("[data-action]").forEach((btn) => {
-      btn.addEventListener("click", () => handleAction(o, btn.dataset.action));
+    tr.querySelectorAll("button").forEach((btn) => {
+      btn.addEventListener("click", () => handleAction(o, btn.dataset.action, tr));
     });
 
     tbody.appendChild(tr);
   });
 }
 
+// =========================
+// Рендер карточек (мобайл)
+// =========================
 function renderCards() {
   const list = document.getElementById("ordersCardList");
   if (!list) return;
-
-  const orders = getFilteredOrders();
   list.innerHTML = "";
 
-  if (orders.length === 0) {
-    list.innerHTML = `<p style="text-align:center;padding:2rem;color:#6b7280;">Заказов не найдено</p>`;
+  const orders = getFilteredOrders();
+  if (!orders.length) {
+    list.innerHTML = `<div class="admin-empty">Заказов не найдено</div>`;
     return;
   }
 
   orders.forEach((o) => {
     const card = document.createElement("div");
-    card.className = "admin-card";
+    card.className      = "admin-card";
+    card.dataset.orderId = o.id;
 
     card.innerHTML = `
       <div class="admin-card__header">
         <span class="admin-card__id">${o.id}</span>
-        <span class="status-badge ${statusClass(o.status)}">${mapStatusToLabel(o.status)}</span>
+        <span class="status-badge" data-status="${o.status || ''}">${mapStatusToLabel(o.status)}</span>
       </div>
-      <div class="admin-card__row"><span class="admin-card__label">Имя</span><span class="admin-card__value">${escHtml(o.name)}</span></div>
-      <div class="admin-card__row"><span class="admin-card__label">Телефон</span><span class="admin-card__value">${escHtml(o.phone)}</span></div>
-      <div class="admin-card__row"><span class="admin-card__label">Район</span><span class="admin-card__value">${escHtml(o.area)}</span></div>
-      <div class="admin-card__row"><span class="admin-card__label">Тип</span><span class="admin-card__value">${mapTypeToLabel(o.type)}</span></div>
-      <div class="admin-card__row"><span class="admin-card__label">Площадь</span><span class="admin-card__value">${o.areaSize ? o.areaSize + " м²" : "—"}</span></div>
-      <div class="admin-card__row"><span class="admin-card__label">Дата/время</span><span class="admin-card__value">${escHtml(o.date)} ${escHtml(o.time)}</span></div>
-      <div class="admin-card__row"><span class="admin-card__label">Цена</span><span class="admin-card__value">${o.price ? o.price + " ₺" : "—"}</span></div>
-      ${o.comment ? `<div class="admin-card__row"><span class="admin-card__label">Комментарий</span><span class="admin-card__value">${escHtml(o.comment)}</span></div>` : ""}
+      <div class="admin-card__row"><span class="admin-card__label">Имя</span>        <span class="admin-card__value">${o.name     || "—"}</span></div>
+      <div class="admin-card__row"><span class="admin-card__label">Телефон</span>    <span class="admin-card__value">${o.phone    || "—"}</span></div>
+      <div class="admin-card__row"><span class="admin-card__label">Район</span>      <span class="admin-card__value">${o.area     || "—"}</span></div>
+      <div class="admin-card__row"><span class="admin-card__label">Тип</span>        <span class="admin-card__value">${o.type     || "—"}</span></div>
+      <div class="admin-card__row"><span class="admin-card__label">Площадь</span>    <span class="admin-card__value">${o.areaSize || "—"} ${o.areaSize ? "м²" : ""}</span></div>
+      <div class="admin-card__row"><span class="admin-card__label">Дата/время</span> <span class="admin-card__value">${o.date || "—"} ${o.time || ""}</span></div>
+      <div class="admin-card__row"><span class="admin-card__label">Цена</span>       <span class="admin-card__value">${o.price ? o.price + " ₺" : "—"}</span></div>
+      <div class="admin-card__row"><span class="admin-card__label">Комментарий</span><span class="admin-card__value">${o.comment  || "—"}</span></div>
       <div class="admin-card__actions">
-        <button class="btn-action btn-action--confirm" data-action="confirm">Подтвердить</button>
-        <button class="btn-action btn-action--start" data-action="start">В процессе</button>
-        <button class="btn-action btn-action--done" data-action="done">Завершить</button>
-        <button class="btn-action btn-action--cancel" data-action="cancel">Отменить</button>
-        <button class="btn-action btn-action--delete" data-action="delete">Удалить</button>
+        <button class="btn-action btn-confirm"  data-action="confirm">Подтв.</button>
+        <button class="btn-action btn-start"    data-action="start">В процессе</button>
+        <button class="btn-action btn-done"     data-action="done">Завершить</button>
+        <button class="btn-action btn-cancel"   data-action="cancel">Отменить</button>
+        <button class="btn-action btn-delete"   data-action="delete">Удалить</button>
       </div>
     `;
 
-    card.querySelectorAll("[data-action]").forEach((btn) => {
-      btn.addEventListener("click", () => handleAction(o, btn.dataset.action));
+    card.querySelectorAll("button").forEach((btn) => {
+      btn.addEventListener("click", () => handleAction(o, btn.dataset.action, card));
     });
 
     list.appendChild(card);
@@ -200,44 +214,74 @@ function renderCards() {
 function render() {
   renderTable();
   renderCards();
-  updateCounter();
+  updateStats();
 }
 
-function updateCounter() {
-  const el = document.getElementById("ordersCount");
-  if (el) {
-    const filtered = getFilteredOrders().length;
-    const total = allOrders.length;
-    el.textContent = currentStatusFilter === "all" && !currentSearch
-      ? `Всего: ${total}`
-      : `Показано: ${filtered} из ${total}`;
-  }
+// =========================
+// Счётчики статусов
+// =========================
+function updateStats() {
+  const counts = { all: allOrders.length, pending: 0, confirmed: 0, in_progress: 0, done: 0, cancelled: 0 };
+  allOrders.forEach((o) => { if (o.status in counts) counts[o.status]++; });
+
+  document.querySelectorAll(".btn--filter").forEach((btn) => {
+    const badge = btn.querySelector(".filter-badge");
+    if (badge) badge.textContent = counts[btn.dataset.status] ?? 0;
+  });
 }
 
-async function handleAction(order, action) {
+// =========================
+// Действия со статусами
+// ИСПРАВЛЕНО: оптимистичное обновление DOM + кастомный confirm вместо window.confirm
+// =========================
+async function handleAction(order, action, rowEl) {
   const ref = doc(db, "orders", order.id);
-  try {
-    if (action === "delete") {
-      if (!confirm(`Удалить заказ ${order.id}?`)) return;
+
+  if (action === "delete") {
+    const ok = await showConfirm(`Удалить заказ ${order.id}?`);
+    if (!ok) return;
+
+    // Оптимистично убираем из DOM и массива
+    rowEl?.remove();
+    allOrders = allOrders.filter((o) => o.id !== order.id);
+    updateStats();
+
+    try {
       await deleteDoc(ref);
-    } else {
-      const statusMap = {
-        confirm: "confirmed",
-        start: "in_progress",
-        done: "done",
-        cancel: "cancelled"
-      };
-      const newStatus = statusMap[action];
-      if (!newStatus) return;
-      await updateDoc(ref, { status: newStatus });
+    } catch (e) {
+      console.error("Ошибка удаления:", e);
+      await loadOrders(); // откат при ошибке
     }
-    await loadOrders();
-  } catch (err) {
-    console.error("Ошибка при обновлении:", err);
-    alert("Не удалось выполнить действие. Попробуйте ещё раз.");
+    return;
+  }
+
+  const statusMap = { confirm: "confirmed", start: "in_progress", done: "done", cancel: "cancelled" };
+  const newStatus = statusMap[action];
+  if (!newStatus) return;
+
+  // Оптимистично обновляем локальный массив
+  const idx = allOrders.findIndex((o) => o.id === order.id);
+  if (idx !== -1) allOrders[idx].status = newStatus;
+
+  // Обновляем DOM прямо в текущей строке/карточке без полного ре-рендера
+  rowEl?.querySelectorAll(".status-cell, .status-badge").forEach((el) => {
+    el.textContent    = mapStatusToLabel(newStatus);
+    el.dataset.status = newStatus;
+  });
+
+  updateStats();
+
+  try {
+    await updateDoc(ref, { status: newStatus });
+  } catch (e) {
+    console.error("Ошибка обновления статуса:", e);
+    await loadOrders(); // откат при ошибке
   }
 }
 
+// =========================
+// Фильтры и управление
+// =========================
 function initFilters() {
   document.querySelectorAll(".btn--filter").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -258,71 +302,66 @@ function initFilters() {
 
   const refreshBtn = document.getElementById("refreshBtn");
   if (refreshBtn) {
-    refreshBtn.addEventListener("click", loadOrders);
+    refreshBtn.addEventListener("click", async () => {
+      refreshBtn.disabled    = true;
+      refreshBtn.textContent = "Загрузка…";
+      await loadOrders();
+      refreshBtn.disabled    = false;
+      refreshBtn.textContent = "Обновить";
+    });
   }
 
+  // =========================
+  // Экспорт CSV
+  // ИСПРАВЛЕНО: телефон оборачивается в ="..." — Excel трактует как текст,
+  // не конвертирует в научную нотацию 3,53Е+11
+  // BOM \uFEFF — для корректной кириллицы при открытии в Excel
+  // =========================
   const exportBtn = document.getElementById("exportBtn");
   if (exportBtn) {
-    exportBtn.addEventListener("click", exportCSV);
+    exportBtn.addEventListener("click", () => {
+      const rows = getFilteredOrders();
+      if (!rows.length) { alert("Нет данных для экспорта"); return; }
+
+      const header = ["ID","Имя","Телефон","Район","Тип","Площадь (м²)","Дата","Время","Цена (₺)","Создано","Комментарий","Статус"];
+
+      const csvRows = rows.map((o) => {
+        // ="..." — стандартный способ принудить Excel читать как текст
+        const phoneSafe = o.phone ? `="${o.phone}"` : "";
+        return [
+          o.id,
+          o.name     || "",
+          phoneSafe,
+          o.area     || "",
+          o.type     || "",
+          o.areaSize || "",
+          o.date     || "",
+          o.time     || "",
+          o.price    || "",
+          o.createdAtLocal ? formatDateTime(o.createdAtLocal) : "",
+          (o.comment || "").replace(/[\r\n;]/g, " "),
+          mapStatusToLabel(o.status),
+        ].join(";");
+      });
+
+      const csv  = "\uFEFF" + [header.join(";"), ...csvRows].join("\r\n");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement("a");
+      a.href     = url;
+      a.download = `suptemiz_orders_${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
   }
 }
 
-// Экспорт в CSV (с BOM для корректного открытия в Excel)
-function exportCSV() {
-  const rows = getFilteredOrders();
-  if (rows.length === 0) {
-    alert("Нет данных для экспорта.");
-    return;
-  }
-
-  const header = ["ID", "Имя", "Телефон", "Район", "Тип", "Площадь (м²)", "Дата", "Время", "Цена (₺)", "Комментарий", "Статус", "Создано"];
-  const csvRows = [
-    header.join(";"),
-    ...rows.map((o) =>
-      [
-        o.id,
-        o.name || "",
-        o.phone || "",
-        o.area || "",
-        mapTypeToLabel(o.type),
-        o.areaSize || "",
-        o.date || "",
-        o.time || "",
-        o.price || "",
-        (o.comment || "").replace(/[\n;]/g, " "),
-        mapStatusToLabel(o.status),
-        o.createdAtLocal ? formatDateTime(o.createdAtLocal) : ""
-      ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(";")
-    )
-  ].join("\n");
-
-  // BOM для корректной кодировки в Excel
-  const bom = "\uFEFF";
-  const blob = new Blob([bom + csvRows], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `orders_${new Date().toISOString().split("T")[0]}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-// Защита от XSS — экранирование HTML
-function escHtml(str, maxLen = 0) {
-  if (!str) return "—";
-  const s = String(str)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-  if (maxLen && s.length > maxLen) return s.slice(0, maxLen) + "…";
-  return s;
-}
-
+// =========================
+// Старт
+// =========================
 document.addEventListener("DOMContentLoaded", async () => {
   const app = initializeApp(firebaseConfig);
   db = getFirestore(app);
-
   initFilters();
   await loadOrders();
 });
