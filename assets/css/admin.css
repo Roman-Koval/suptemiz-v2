@@ -1,3 +1,8 @@
+/* ═══════════════════════════════════════
+   Base
+═══════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; }
+
 body {
   margin: 0;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -5,27 +10,75 @@ body {
   color: #f9fafb;
 }
 
+/* ═══════════════════════════════════════
+   Layout
+═══════════════════════════════════════ */
 .admin-container {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 1rem;
+  padding: 1.25rem 1rem;
 }
 
-h1 {
-  margin-bottom: 1rem;
+/* ═══════════════════════════════════════
+   Header / nav-bar
+═══════════════════════════════════════ */
+.admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
 }
 
+.admin-header h1 {
+  margin: 0;
+  font-size: 1.4rem;
+  color: #f9fafb;
+}
+
+/* ── Ссылка «На сайт» ── */
+.admin-site-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 6px;
+  border: 1px solid #0f766e;
+  background: transparent;
+  color: #2dd4bf;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 0.18s, color 0.18s;
+}
+
+.admin-site-link:hover {
+  background: #0f766e;
+  color: #ecfeff;
+}
+
+.admin-site-link svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════
+   Controls row
+═══════════════════════════════════════ */
 .admin-controls {
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
   margin-bottom: 1rem;
+  align-items: center;
 }
 
 .admin-filters {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.4rem;
 }
 
 .admin-actions {
@@ -33,68 +86,208 @@ h1 {
   flex-wrap: wrap;
   gap: 0.5rem;
   margin-left: auto;
+  align-items: center;
 }
 
-.admin-actions input {
-  padding: 0.4rem 0.6rem;
-  border-radius: 4px;
-  border: 1px solid #4b5563;
+.admin-actions input[type="search"],
+.admin-actions input[type="text"] {
+  padding: 0.4rem 0.7rem;
+  border-radius: 6px;
+  border: 1px solid #374151;
   background: #020617;
   color: #f9fafb;
+  font-size: 0.85rem;
+  min-width: 180px;
+  transition: border-color 0.15s;
 }
 
+.admin-actions input:focus {
+  outline: none;
+  border-color: #0f766e;
+}
+
+/* ═══════════════════════════════════════
+   Generic buttons
+═══════════════════════════════════════ */
 .btn {
-  padding: 0.35rem 0.7rem;
-  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.38rem 0.75rem;
+  border-radius: 6px;
   border: none;
   cursor: pointer;
-  font-size: 0.85rem;
+  font-size: 0.83rem;
+  font-weight: 500;
+  transition: background 0.15s, opacity 0.15s;
+  white-space: nowrap;
 }
 
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Filter buttons */
 .btn--filter {
   background: #1e293b;
-  color: #e5e7eb;
+  color: #cbd5e1;
+  border: 1px solid #334155;
+  position: relative;
 }
+
+.btn--filter:hover { background: #293548; }
 
 .btn--filter.btn--active {
   background: #0f766e;
   color: #ecfeff;
+  border-color: #0f766e;
 }
 
+.filter-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.15);
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* Action buttons (utility) */
+.btn--refresh { background: #1e40af; color: #fff; }
+.btn--refresh:hover { background: #1d4ed8; }
+
+.btn--export { background: #065f46; color: #d1fae5; }
+.btn--export:hover { background: #047857; }
+
+/* ═══════════════════════════════════════
+   Table
+═══════════════════════════════════════ */
 .admin-table-wrapper {
   width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
+  border-radius: 8px;
+  border: 1px solid #1f2937;
 }
 
 .admin-table {
   width: max-content;
-  min-width: 900px;
+  min-width: 960px;
   border-collapse: collapse;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
 }
 
 .admin-table th,
 .admin-table td {
   border: 1px solid #1f2937;
-  padding: 0.4rem 0.5rem;
+  padding: 0.45rem 0.6rem;
   white-space: nowrap;
+  vertical-align: middle;
 }
 
 .admin-table th {
   background: #111827;
+  color: #9ca3af;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
-.admin-card-list {
-  display: none;
+.admin-table tbody tr:hover td { background: #111827; }
+
+/* Статус в таблице */
+.status-cell {
+  font-weight: 600;
+  font-size: 0.75rem;
 }
 
-/* Мобильный режим: карточки вместо таблицы */
+/* ═══════════════════════════════════════
+   Статус-бейджи (цвета)
+═══════════════════════════════════════ */
+[data-status="pending"]     { color: #fbbf24; }
+[data-status="confirmed"]   { color: #60a5fa; }
+[data-status="in_progress"] { color: #a78bfa; }
+[data-status="done"]        { color: #34d399; }
+[data-status="cancelled"]   { color: #f87171; }
+
+/* ═══════════════════════════════════════
+   Action buttons (в ячейке/карточке)
+═══════════════════════════════════════ */
+.actions-cell {
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: nowrap;
+}
+
+.btn-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.28rem 0.5rem;
+  border-radius: 5px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 600;
+  transition: background 0.15s, transform 0.1s;
+  white-space: nowrap;
+}
+
+.btn-action:active { transform: scale(0.93); }
+
+.btn-confirm {
+  background: #1e3a5f;
+  color: #93c5fd;
+  border-color: #1e40af;
+}
+.btn-confirm:hover { background: #1e40af; color: #fff; }
+
+.btn-start {
+  background: #2d1b69;
+  color: #c4b5fd;
+  border-color: #6d28d9;
+}
+.btn-start:hover { background: #6d28d9; color: #fff; }
+
+.btn-done {
+  background: #064e3b;
+  color: #6ee7b7;
+  border-color: #047857;
+}
+.btn-done:hover { background: #047857; color: #fff; }
+
+.btn-cancel {
+  background: #3b1c1c;
+  color: #fca5a5;
+  border-color: #b91c1c;
+}
+.btn-cancel:hover { background: #b91c1c; color: #fff; }
+
+.btn-delete {
+  background: #1c1c1c;
+  color: #9ca3af;
+  border-color: #374151;
+}
+.btn-delete:hover { background: #374151; color: #f87171; }
+
+/* ═══════════════════════════════════════
+   Cards (mobile)
+═══════════════════════════════════════ */
+.admin-card-list { display: none; }
+
 @media (max-width: 768px) {
-  .admin-table {
-    display: none;
-  }
+  .admin-table-wrapper { display: none; }
 
   .admin-card-list {
     display: flex;
@@ -103,9 +296,9 @@ h1 {
   }
 
   .admin-card {
-    border-radius: 8px;
+    border-radius: 10px;
     background: #020617;
-    padding: 0.75rem 0.9rem;
+    padding: 0.85rem 1rem;
     border: 1px solid #1f2937;
   }
 
@@ -114,25 +307,54 @@ h1 {
     justify-content: space-between;
     gap: 0.5rem;
     font-size: 0.8rem;
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.3rem;
+    align-items: flex-start;
   }
 
   .admin-card__label {
-    color: #9ca3af;
+    color: #6b7280;
+    flex-shrink: 0;
+    min-width: 90px;
   }
 
   .admin-card__value {
     font-weight: 500;
+    text-align: right;
+    word-break: break-word;
   }
 
   .admin-card__actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.3rem;
-    margin-top: 0.4rem;
+    gap: 0.35rem;
+    margin-top: 0.6rem;
+    padding-top: 0.6rem;
+    border-top: 1px solid #1f2937;
   }
 
-  .admin-card__actions button {
+  .admin-card__actions .btn-action {
+    flex: 1 1 auto;
+    min-width: 60px;
+    justify-content: center;
+    padding: 0.4rem 0.5rem;
     font-size: 0.75rem;
   }
+
+  .admin-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .admin-actions { margin-left: 0; }
+  .admin-actions input { min-width: 100%; }
+}
+
+/* ═══════════════════════════════════════
+   Empty state
+═══════════════════════════════════════ */
+.admin-empty {
+  text-align: center;
+  padding: 2rem;
+  color: #4b5563;
+  font-size: 0.9rem;
 }
