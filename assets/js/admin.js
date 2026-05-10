@@ -5,7 +5,7 @@ import {
 import {
   getFirestore,
   collection,
-  getDocs,
+  onSnapshot,
   updateDoc,
   deleteDoc,
   doc,
@@ -13,10 +13,14 @@ import {
   orderBy
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+// =========================
+// Состояние
+// =========================
 let db = null;
 let allOrders = [];
-let currentStatusFilter = "all";
+let currentFilter = "all";
 let currentSearch = "";
+let unsubscribe = null;
 
 const STATUS_LABELS = {
   pending:     "В ожидании",
@@ -26,223 +30,193 @@ const STATUS_LABELS = {
   cancelled:   "Отменён"
 };
 
-function mapStatusToLabel(status) {
-  return STATUS_LABELS[status] || status;
+function mapStatusToLabel(s) {
+  return STATUS_LABELS[s] || s;
 }
 
-function statusBadge(status) {
-  return `<span class="status status-${status}">${mapStatusToLabel(status)}</span>`;
+function statusBadge(s) {
+  return `<span class="status status-${s}">${mapStatusToLabel(s)}</span>`;
 }
 
-function formatDateTime(iso) {
+function fmtDate(iso) {
   if (!iso) return "—";
-  const d = new Date(iso);
-  return d.toLocaleString("ru-RU");
+  return new Date(iso).toLocaleString("ru-RU");
 }
 
 // =========================
-// Загрузка заказов
+// Realtime подписка (onSnapshot вместо getDocs)
 // =========================
-async function loadOrders() {
-  const refreshBtn = document.getElementById("refreshBtn");
-  if (refreshBtn) {
-    refreshBtn.disabled = true;
-    refreshBtn.textContent = "⏳";
-  }
+function subscribeOrders() {
+  if (unsubscribe) unsubscribe();
 
-  try {
-    const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
-    const snap = await getDocs(q);
-    allOrders = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-    render();
-  } catch (e) {
-    console.error("Ошибка загрузки заказов:", e);
-    alert("Не удалось загрузить заказы. Проверьте подключение.");
-  } finally {
-    if (refreshBtn) {
-      refreshBtn.disabled = false;
-      refreshBtn.textContent = "🔄 Обновить";
+  const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
+  setStatus("⏳ Подключаемся...");
+
+  unsubscribe = onSnapshot(q,
+    (snap) => {
+      // ВАЖНО: _docId — это внутренний Firestore ID документа для updateDoc/deleteDoc
+      // Поле id внутри документа — это наш бизнес-ID "ST-XXXXX"
+      allOrders = snap.docs.map((d) => ({
+        _docId: d.id,
+        ...d.data()
+      }));
+      setStatus(`✅ ${allOrders.length} заказов · ${new Date().toLocaleTimeString("ru-RU")}`);
+      render();
+    },
+    (err) => {
+      console.error("Firestore:", err);
+      if (err.code === "permission-denied") {
+        setStatus("❌ Нет прав. Проверьте правила Firestore (см. подсказку ниже)");
+        document.getElementById("firestoreHint")?.style.setProperty("display", "block");
+      } else {
+        setStatus("❌ " + err.message);
+      }
     }
-  }
+  );
+}
+
+function setStatus(text) {
+  const el = document.getElementById("adminStatus");
+  if (el) el.textContent = text;
 }
 
 // =========================
 // Фильтрация
 // =========================
-function getFilteredOrders() {
+function getFiltered() {
   return allOrders.filter((o) => {
-    if (currentStatusFilter !== "all" && o.status !== currentStatusFilter) return false;
+    if (currentFilter !== "all" && o.status !== currentFilter) return false;
     if (!currentSearch) return true;
     const s = currentSearch.toLowerCase();
     return (
-      (o.name || "").toLowerCase().includes(s) ||
+      (o.id    || "").toLowerCase().includes(s) ||
+      (o.name  || "").toLowerCase().includes(s) ||
       (o.phone || "").toLowerCase().includes(s) ||
-      (o.id || "").toLowerCase().includes(s)
+      (o.area  || "").toLowerCase().includes(s)
     );
   });
 }
 
 // =========================
-// Счётчики статусов
+// Статистика
 // =========================
 function renderStats() {
-  const counts = {
-    all: allOrders.length,
-    pending: 0,
-    confirmed: 0,
-    in_progress: 0,
-    done: 0,
-    cancelled: 0
-  };
-
+  const counts = { all: allOrders.length, pending: 0, confirmed: 0, in_progress: 0, done: 0, cancelled: 0 };
+  let revenue = 0;
   allOrders.forEach((o) => {
-    if (counts[o.status] !== undefined) counts[o.status]++;
+    if (o.status in counts) counts[o.status]++;
+    if (o.status === "done") revenue += Number(o.price) || 0;
   });
 
-  // Обновляем цифры в кнопках фильтра
-  document.querySelectorAll(".btn--filter").forEach((btn) => {
-    const status = btn.dataset.status;
-    const countEl = btn.querySelector(".filter-count");
-    if (countEl && counts[status] !== undefined) {
-      countEl.textContent = counts[status];
-    }
+  document.querySelectorAll(".btn--filter[data-status]").forEach((btn) => {
+    const fc = btn.querySelector(".fc");
+    if (fc) fc.textContent = counts[btn.dataset.status] ?? 0;
   });
 
-  // Общая статистика
-  const statsEl = document.getElementById("adminStats");
-  if (statsEl) {
-    const totalRevenue = allOrders
-      .filter(o => o.status === "done")
-      .reduce((sum, o) => sum + (Number(o.price) || 0), 0);
-
-    statsEl.innerHTML = `
-      <span>Всего: <b>${counts.all}</b></span>
-      <span>Ожидают: <b>${counts.pending}</b></span>
-      <span>В процессе: <b>${counts.in_progress}</b></span>
-      <span>Завершено: <b>${counts.done}</b></span>
-      <span>Выручка: <b>${totalRevenue.toLocaleString("ru")} ₺</b></span>
-    `;
+  const el = document.getElementById("adminStats");
+  if (el) {
+    el.innerHTML =
+      `<span>Всего: <b>${counts.all}</b></span>` +
+      `<span>Ожидают: <b>${counts.pending}</b></span>` +
+      `<span>В процессе: <b>${counts.in_progress}</b></span>` +
+      `<span>Завершено: <b>${counts.done}</b></span>` +
+      `<span>Выручка: <b>${revenue.toLocaleString("ru")} ₺</b></span>`;
   }
 }
 
 // =========================
-// Таблица
+// Таблица (desktop)
 // =========================
 function renderTable() {
   const tbody = document.getElementById("ordersTableBody");
   if (!tbody) return;
 
-  const orders = getFilteredOrders();
-  tbody.innerHTML = "";
-
-  if (orders.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="12" style="text-align:center;padding:20px;color:#9ca3af;">Заказы не найдены</td></tr>`;
+  const rows = getFiltered();
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="12" class="empty-cell">Заказов нет</td></tr>`;
+    tbody.onclick = null;
     return;
   }
 
-  orders.forEach((o) => {
-    const tr = document.createElement("tr");
-
-    tr.innerHTML = `
-      <td>${o.id || "—"}</td>
-      <td>${o.name || "—"}</td>
-      <td><a href="tel:${o.phone || ""}" style="color:#38bdf8">${o.phone || "—"}</a></td>
-      <td>${o.area || "—"}</td>
-      <td>${o.type || "—"}</td>
-      <td>${o.areaSize || "—"} м²</td>
-      <td>${o.date || "—"} ${o.time || ""}</td>
-      <td>${o.price ? o.price + " ₺" : "—"}</td>
-      <td>${o.createdAtLocal ? formatDateTime(o.createdAtLocal) : "—"}</td>
-      <td style="max-width:120px;white-space:normal">${o.comment || "—"}</td>
+  tbody.innerHTML = rows.map((o) => `
+    <tr data-docid="${o._docId}">
+      <td class="mono">${o.id || "—"}</td>
+      <td>${esc(o.name)}</td>
+      <td><a href="tel:${o.phone||""}" class="tel-link">${esc(o.phone)}</a></td>
+      <td>${esc(o.area)}</td>
+      <td>${esc(o.type)}</td>
+      <td class="nowrap">${o.areaSize ? o.areaSize + " м²" : "—"}</td>
+      <td class="nowrap">${o.date||"—"} ${o.time||""}</td>
+      <td class="nowrap">${o.price ? o.price + " ₺" : "—"}</td>
+      <td class="nowrap">${o.createdAtLocal ? fmtDate(o.createdAtLocal) : "—"}</td>
+      <td class="comment-cell">${esc(o.comment)}</td>
       <td>${statusBadge(o.status)}</td>
-      <td class="admin-actions-cell">
-        <button data-action="confirm" title="Подтвердить" class="act-btn act-confirm">✔</button>
-        <button data-action="start"   title="В процессе"  class="act-btn act-start">▶</button>
-        <button data-action="done"    title="Завершить"   class="act-btn act-done">✓</button>
-        <button data-action="cancel"  title="Отменить"    class="act-btn act-cancel">✕</button>
-        <button data-action="delete"  title="Удалить"     class="act-btn act-delete">🗑</button>
+      <td>
+        <div class="act-row">
+          <button class="act-btn act-confirm" data-action="confirm" title="Подтвердить">✔</button>
+          <button class="act-btn act-start"   data-action="start"   title="В процессе">▶</button>
+          <button class="act-btn act-done"    data-action="done"    title="Завершить">✓</button>
+          <button class="act-btn act-cancel"  data-action="cancel"  title="Отменить">✕</button>
+          <button class="act-btn act-delete"  data-action="delete"  title="Удалить">🗑</button>
+        </div>
       </td>
-    `;
+    </tr>
+  `).join("");
 
-    tr.querySelectorAll("button[data-action]").forEach((btn) => {
-      btn.addEventListener("click", () => handleAction(o, btn.dataset.action));
-    });
-
-    tbody.appendChild(tr);
-  });
+  tbody.onclick = (e) => {
+    const btn = e.target.closest("[data-action]");
+    if (!btn) return;
+    const docId = btn.closest("tr[data-docid]")?.dataset.docid;
+    const order = allOrders.find(o => o._docId === docId);
+    if (order) handleAction(order, btn.dataset.action);
+  };
 }
 
 // =========================
-// Карточки (мобайл)
+// Карточки (mobile)
 // =========================
 function renderCards() {
   const list = document.getElementById("ordersCardList");
   if (!list) return;
 
-  const orders = getFilteredOrders();
-  list.innerHTML = "";
-
-  if (orders.length === 0) {
-    list.innerHTML = `<div style="text-align:center;padding:20px;color:#9ca3af;">Заказы не найдены</div>`;
+  const rows = getFiltered();
+  if (!rows.length) {
+    list.innerHTML = `<div class="empty-cell">Заказов нет</div>`;
+    list.onclick = null;
     return;
   }
 
-  orders.forEach((o) => {
-    const card = document.createElement("div");
-    card.className = "admin-card";
-
-    card.innerHTML = `
+  list.innerHTML = rows.map((o) => `
+    <div class="admin-card" data-docid="${o._docId}">
       <div class="admin-card__header">
-        <span class="admin-card__id">${o.id || "—"}</span>
+        <span class="admin-card__id">${o.id||"—"}</span>
         ${statusBadge(o.status)}
       </div>
-      <div class="admin-card__row">
-        <span class="admin-card__label">Имя</span>
-        <span class="admin-card__value">${o.name || "—"}</span>
-      </div>
-      <div class="admin-card__row">
-        <span class="admin-card__label">Телефон</span>
-        <span class="admin-card__value"><a href="tel:${o.phone || ""}" style="color:#38bdf8">${o.phone || "—"}</a></span>
-      </div>
-      <div class="admin-card__row">
-        <span class="admin-card__label">Район</span>
-        <span class="admin-card__value">${o.area || "—"}</span>
-      </div>
-      <div class="admin-card__row">
-        <span class="admin-card__label">Тип</span>
-        <span class="admin-card__value">${o.type || "—"}</span>
-      </div>
-      <div class="admin-card__row">
-        <span class="admin-card__label">Площадь</span>
-        <span class="admin-card__value">${o.areaSize || "—"} м²</span>
-      </div>
-      <div class="admin-card__row">
-        <span class="admin-card__label">Дата/время</span>
-        <span class="admin-card__value">${o.date || "—"} ${o.time || ""}</span>
-      </div>
-      <div class="admin-card__row">
-        <span class="admin-card__label">Цена</span>
-        <span class="admin-card__value">${o.price ? o.price + " ₺" : "—"}</span>
-      </div>
-      ${o.comment ? `<div class="admin-card__row">
-        <span class="admin-card__label">Комментарий</span>
-        <span class="admin-card__value">${o.comment}</span>
-      </div>` : ""}
+      <div class="admin-card__row"><span class="lbl">Имя</span><span>${esc(o.name)}</span></div>
+      <div class="admin-card__row"><span class="lbl">Телефон</span><a href="tel:${o.phone||""}" class="tel-link">${esc(o.phone)}</a></div>
+      <div class="admin-card__row"><span class="lbl">Район</span><span>${esc(o.area)}</span></div>
+      <div class="admin-card__row"><span class="lbl">Тип</span><span>${esc(o.type)}</span></div>
+      <div class="admin-card__row"><span class="lbl">Площадь</span><span>${o.areaSize ? o.areaSize+" м²" : "—"}</span></div>
+      <div class="admin-card__row"><span class="lbl">Дата</span><span>${o.date||"—"} ${o.time||""}</span></div>
+      <div class="admin-card__row"><span class="lbl">Цена</span><span>${o.price ? o.price+" ₺" : "—"}</span></div>
+      ${o.comment ? `<div class="admin-card__row"><span class="lbl">Коммент.</span><span>${esc(o.comment)}</span></div>` : ""}
       <div class="admin-card__actions">
-        <button data-action="confirm" class="act-btn act-confirm">Подтв.</button>
-        <button data-action="start"   class="act-btn act-start">Старт</button>
-        <button data-action="done"    class="act-btn act-done">Готово</button>
-        <button data-action="cancel"  class="act-btn act-cancel">Отмена</button>
-        <button data-action="delete"  class="act-btn act-delete">Удалить</button>
+        <button class="act-btn act-confirm" data-action="confirm">Подтв.</button>
+        <button class="act-btn act-start"   data-action="start">Старт</button>
+        <button class="act-btn act-done"    data-action="done">Готово</button>
+        <button class="act-btn act-cancel"  data-action="cancel">Отмена</button>
+        <button class="act-btn act-delete"  data-action="delete">Удалить</button>
       </div>
-    `;
+    </div>
+  `).join("");
 
-    card.querySelectorAll("button[data-action]").forEach((btn) => {
-      btn.addEventListener("click", () => handleAction(o, btn.dataset.action));
-    });
-
-    list.appendChild(card);
-  });
+  list.onclick = (e) => {
+    const btn = e.target.closest("[data-action]");
+    if (!btn) return;
+    const docId = btn.closest("[data-docid]")?.dataset.docid;
+    const order = allOrders.find(o => o._docId === docId);
+    if (order) handleAction(order, btn.dataset.action);
+  };
 }
 
 // =========================
@@ -258,99 +232,99 @@ function render() {
 // Действия
 // =========================
 async function handleAction(order, action) {
-  const ref = doc(db, "orders", order.id);
+  // Используем _docId (настоящий Firestore doc ID), не order.id (ST-XXXX)
+  const ref = doc(db, "orders", order._docId);
+  const statusMap = { confirm: "confirmed", start: "in_progress", done: "done", cancel: "cancelled" };
 
-  if (action === "delete") {
-    if (!confirm(`Удалить заказ ${order.id}?`)) return;
-    await deleteDoc(ref);
-  } else {
-    const statusMap = {
-      confirm: "confirmed",
-      start:   "in_progress",
-      done:    "done",
-      cancel:  "cancelled"
-    };
-    const newStatus = statusMap[action];
-    if (newStatus) {
-      await updateDoc(ref, { status: newStatus });
+  try {
+    if (action === "delete") {
+      if (!confirm(`Удалить заказ ${order.id}?`)) return;
+      await deleteDoc(ref);
+    } else if (statusMap[action]) {
+      await updateDoc(ref, { status: statusMap[action] });
+      // onSnapshot автоматически обновит UI — дополнительный вызов не нужен
+    }
+  } catch (err) {
+    console.error("handleAction:", err);
+    if (err.code === "permission-denied") {
+      alert(
+        "❌ Firestore не разрешает запись.\n\n" +
+        "Откройте Firebase Console → Firestore → Правила\n" +
+        "и установите правила разработки:\n\n" +
+        "rules_version = '2';\nservice cloud.firestore {\n  match /databases/{db}/documents {\n    match /{doc=**} {\n      allow read, write: if true;\n    }\n  }\n}"
+      );
+    } else {
+      alert("Ошибка: " + err.message);
     }
   }
-
-  await loadOrders();
 }
 
 // =========================
-// Фильтры и поиск
+// Экспорт CSV
+// =========================
+function exportCSV() {
+  const rows = getFiltered();
+  if (!rows.length) { alert("Нет данных для экспорта"); return; }
+
+  const SEP = ";";
+  const header = ["ID","Имя","Телефон","Район","Тип","Площадь м²","Дата","Время","Цена ₺","Комментарий","Статус","Создан"];
+  const lines  = rows.map(o => [
+    o.id||"", o.name||"", o.phone||"", o.area||"", o.type||"",
+    o.areaSize||"", o.date||"", o.time||"", o.price||"",
+    (o.comment||"").replace(/[\r\n;]/g, " "),
+    mapStatusToLabel(o.status),
+    o.createdAtLocal ? fmtDate(o.createdAtLocal) : ""
+  ].join(SEP));
+
+  const csv  = "\uFEFF" + [header.join(SEP), ...lines].join("\r\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url  = URL.createObjectURL(blob);
+  const a    = Object.assign(document.createElement("a"), { href: url, download: `orders_${new Date().toISOString().slice(0,10)}.csv` });
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+// =========================
+// Вспомогательные
+// =========================
+function esc(s) {
+  if (!s) return "—";
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+// =========================
+// Инициализация
 // =========================
 function initFilters() {
-  document.querySelectorAll(".btn--filter").forEach((btn) => {
+  document.querySelectorAll(".btn--filter[data-status]").forEach(btn => {
     btn.addEventListener("click", () => {
-      document.querySelectorAll(".btn--filter").forEach((b) => b.classList.remove("btn--active"));
+      document.querySelectorAll(".btn--filter[data-status]").forEach(b => b.classList.remove("btn--active"));
       btn.classList.add("btn--active");
-      currentStatusFilter = btn.dataset.status;
+      currentFilter = btn.dataset.status;
       renderTable();
       renderCards();
     });
   });
 
-  const searchInput = document.getElementById("searchInput");
-  if (searchInput) {
-    searchInput.addEventListener("input", () => {
-      currentSearch = searchInput.value.trim();
-      renderTable();
-      renderCards();
-    });
-  }
+  document.getElementById("searchInput")?.addEventListener("input", (e) => {
+    currentSearch = e.target.value.trim();
+    renderTable();
+    renderCards();
+  });
 
-  const refreshBtn = document.getElementById("refreshBtn");
-  if (refreshBtn) {
-    refreshBtn.addEventListener("click", loadOrders);
-  }
+  document.getElementById("refreshBtn")?.addEventListener("click", subscribeOrders);
 
-  const exportBtn = document.getElementById("exportBtn");
-  if (exportBtn) {
-    exportBtn.addEventListener("click", () => {
-      const rows = getFilteredOrders();
-      const header = [
-        "ID","Имя","Телефон","Район","Тип","Площадь","Дата","Время","Цена","Комментарий","Статус"
-      ];
-      const csv = [
-        "\uFEFF" + header.join(";"),
-        ...rows.map((o) =>
-          [
-            o.id,
-            o.name || "",
-            o.phone || "",
-            o.area || "",
-            o.type || "",
-            o.areaSize || "",
-            o.date || "",
-            o.time || "",
-            o.price || "",
-            (o.comment || "").replace(/;/g, ","),
-            mapStatusToLabel(o.status)
-          ].join(";")
-        )
-      ].join("\n");
-
-      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `orders_${new Date().toISOString().slice(0,10)}.csv`;
-      a.click();
-      URL.revokeObjectURL(url);
-    });
-  }
+  document.getElementById("exportBtn")?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    exportCSV();
+  });
 }
 
-// =========================
-// Запуск
-// =========================
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", () => {
   const app = initializeApp(firebaseConfig);
   db = getFirestore(app);
-
   initFilters();
-  await loadOrders();
+  subscribeOrders();
 });
