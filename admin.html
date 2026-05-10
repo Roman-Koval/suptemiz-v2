@@ -2,81 +2,98 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <title>Админка — SupTemiz</title>
+  <title>Админка заказов — SupTemiz</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="assets/css/admin.css" />
 </head>
 <body>
 
-<div class="admin-container">
+<!-- ========================= -->
+<!-- Экран входа               -->
+<!-- ========================= -->
+<div id="loginScreen" class="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <span class="logo__mark">Sup</span><span class="logo__text">Temiz</span>
+    </div>
+    <h2 class="login-title">Вход в админку</h2>
 
-  <!-- Шапка -->
-  <header class="admin-header">
-    <a href="index.html" class="admin-header__logo">
-      <span class="logo__mark">Sup</span>Temiz
-    </a>
-    <h1 class="admin-header__title">📋 Управление заказами</h1>
-    <a href="index.html" class="admin-header__back">← На сайт</a>
-  </header>
+    <div id="loginError" class="login-error" style="display:none;"></div>
 
-  <!-- Подсказка по правилам Firestore (скрыта по умолчанию) -->
-  <div id="firestoreHint" class="hint-block" style="display:none">
-    <strong>⚠️ Нет прав доступа к Firestore.</strong>
-    Откройте <a href="https://console.firebase.google.com/" target="_blank" rel="noopener">Firebase Console</a>
-    → Firestore Database → Правила и установите (только для разработки!):
-    <pre>rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if true;
-    }
-  }
-}</pre>
-    Для продакшна — добавьте аутентификацию и ограничьте доступ.
+    <div class="form__field">
+      <label for="loginEmail">Email</label>
+      <input type="email" id="loginEmail" placeholder="admin@example.com" autocomplete="username" />
+    </div>
+
+    <div class="form__field">
+      <label for="loginPassword">Пароль</label>
+      <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password" />
+    </div>
+
+    <button id="loginBtn" class="btn btn--primary btn--full">Войти</button>
+  </div>
+</div>
+
+<!-- ========================= -->
+<!-- Основной интерфейс        -->
+<!-- ========================= -->
+<div id="adminScreen" class="admin-container" style="display:none;">
+  <div class="admin-header">
+    <div class="admin-header__left">
+      <div class="login-logo login-logo--small">
+        <span class="logo__mark">Sup</span><span class="logo__text">Temiz</span>
+      </div>
+      <h1>Управление заказами</h1>
+    </div>
+    <div class="admin-header__right">
+      <a href="index.html" class="admin-back-link">← На сайт</a>
+      <button id="logoutBtn" class="btn btn--ghost-sm">Выйти</button>
+    </div>
   </div>
 
-  <!-- Статус соединения -->
-  <p id="adminStatus" class="admin-status">⏳ Загружаем...</p>
+  <div id="errorMessage" class="admin-error" style="display:none;"></div>
 
-  <!-- Общая статистика -->
-  <div class="admin-stats" id="adminStats"></div>
+  <div id="loadingIndicator" class="admin-loading" style="display:none;">
+    <span class="admin-loading__spinner"></span>
+    <span>Загрузка заказов…</span>
+  </div>
 
-  <!-- Тулбар -->
-  <div class="admin-toolbar">
+  <div class="admin-controls">
     <div class="admin-filters">
-      <button class="btn btn--filter btn--active" data-status="all">Все <span class="fc">0</span></button>
-      <button class="btn btn--filter" data-status="pending">В ожидании <span class="fc">0</span></button>
-      <button class="btn btn--filter" data-status="confirmed">Подтверждён <span class="fc">0</span></button>
-      <button class="btn btn--filter" data-status="in_progress">В процессе <span class="fc">0</span></button>
-      <button class="btn btn--filter" data-status="done">Завершён <span class="fc">0</span></button>
-      <button class="btn btn--filter" data-status="cancelled">Отменён <span class="fc">0</span></button>
+      <button data-status="all"         class="btn btn--filter btn--active">Все</button>
+      <button data-status="pending"     class="btn btn--filter">В ожидании</button>
+      <button data-status="confirmed"   class="btn btn--filter">Подтверждён</button>
+      <button data-status="in_progress" class="btn btn--filter">В процессе</button>
+      <button data-status="done"        class="btn btn--filter">Завершён</button>
+      <button data-status="cancelled"   class="btn btn--filter">Отменён</button>
     </div>
-    <div class="admin-right">
-      <input type="search" id="searchInput" class="admin-search" placeholder="🔍 Имя, телефон, ID..." />
-      <button id="refreshBtn" class="btn btn--filter">🔄 Обновить</button>
-      <button id="exportBtn"  class="btn btn--filter">📥 CSV</button>
+    <div class="admin-actions">
+      <input type="text" id="searchInput" placeholder="Имя, телефон, ID…" />
+      <button id="refreshBtn" class="btn btn--secondary">Обновить</button>
+      <button id="exportBtn"  class="btn btn--secondary">CSV</button>
     </div>
   </div>
 
-  <!-- Таблица (desktop) -->
+  <div class="admin-meta">
+    <span id="ordersCount"></span>
+    <span id="adminUser" class="admin-user"></span>
+  </div>
+
   <div class="admin-table-wrapper">
     <table class="admin-table">
       <thead>
         <tr>
           <th>ID</th><th>Имя</th><th>Телефон</th><th>Район</th>
-          <th>Тип</th><th>Площадь</th><th>Дата/время</th><th>Цена</th>
-          <th>Создан</th><th>Комментарий</th><th>Статус</th><th>Действия</th>
+          <th>Тип</th><th>Площадь</th><th>Дата/время</th>
+          <th>Цена</th><th>Создано</th><th>Комментарий</th>
+          <th>Статус</th><th>Действия</th>
         </tr>
       </thead>
-      <tbody id="ordersTableBody">
-        <tr><td colspan="12" class="empty-cell">Загружаем...</td></tr>
-      </tbody>
+      <tbody id="ordersTableBody"></tbody>
     </table>
   </div>
 
-  <!-- Карточки (mobile) -->
   <div class="admin-card-list" id="ordersCardList"></div>
-
 </div>
 
 <script type="module" src="assets/js/admin.js"></script>
