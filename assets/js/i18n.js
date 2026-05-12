@@ -16,6 +16,7 @@ async function loadLang(lang) {
     translations = await res.json();
     currentLang = lang;
     localStorage.setItem(LANG_STORAGE_KEY, lang);
+    window._i18nTranslations = translations;
     applyTranslations();
     // Обновляем lang атрибут документа
     document.documentElement.lang = lang;
