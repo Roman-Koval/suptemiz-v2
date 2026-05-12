@@ -299,7 +299,10 @@ function initOrderForm() {
       }
 
       const modal = document.getElementById("orderModal");
-      if (modal) modal.setAttribute("aria-hidden", "false");
+      if (modal) {
+        modal.style.display = "flex";
+        modal.setAttribute("aria-hidden", "false");
+      }
     } catch (err) {
       console.error("Ошибка сохранения:", err);
       alert("Ошибка при отправке заявки. Проверьте соединение и попробуйте ещё раз.");
@@ -316,7 +319,10 @@ function initOrderForm() {
   document.querySelectorAll("[data-modal-close]").forEach((el) => {
     el.addEventListener("click", () => {
       const modal = document.getElementById("orderModal");
-      if (modal) modal.setAttribute("aria-hidden", "true");
+      if (modal) {
+        modal.style.display = "none";
+        modal.setAttribute("aria-hidden", "true");
+      }
       // Сбрасываем Telegram блок при закрытии модала
       const tgBtn = document.getElementById("telegramSubscribeBtn");
       if (tgBtn) tgBtn.style.display = "none";
@@ -343,6 +349,7 @@ function initOrderForm() {
     if (e.key === "Escape") {
       const modal = document.getElementById("orderModal");
       if (modal && modal.getAttribute("aria-hidden") === "false") {
+        modal.style.display = "none";
         modal.setAttribute("aria-hidden", "true");
       }
     }
