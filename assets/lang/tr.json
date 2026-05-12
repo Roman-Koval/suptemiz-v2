@@ -131,6 +131,7 @@
     "title": "Talep gönderildi",
     "text": "Teşekkürler! Talebinizi aldık, onay için en kısa sürede sizinle iletişime geçeceğiz.",
     "orderId": "Sipariş numarası:",
-    "ok": "Tamam"
+    "ok": "Tamam",
+    "tgSubscribe": "✈️ Telegram'da bildirim al"
   }
 }
