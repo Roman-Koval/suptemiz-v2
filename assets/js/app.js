@@ -46,7 +46,7 @@ function formatPrice(value) {
 }
 
 // =========================
-// Быстрый расчёт
+// Быстрый расчёт (hero)
 // =========================
 function updateQuickPrice() {
   const typeEl = document.getElementById("quickType");
@@ -74,31 +74,53 @@ function updateOrderPrice() {
 }
 
 // =========================
-// Инициализация расчёта
+// Инициализация калькулятора
 // =========================
 function initPriceCalculation() {
   const quickType = document.getElementById("quickType");
   const quickArea = document.getElementById("quickArea");
+  const quickPrice = document.getElementById("quickPrice");
 
+  // Сбрасываем калькулятор
   if (quickArea) quickArea.value = "";
   if (quickType) quickType.value = "standard";
-
-  const quickPrice = document.getElementById("quickPrice");
   if (quickPrice) quickPrice.textContent = "—";
 
   if (quickType && quickArea) {
     quickType.addEventListener("change", () => {
       updateQuickPrice();
+      // Синхронизируем ТИП в форму заказа
       const mainType = document.getElementById("type");
-      if (mainType) mainType.value = quickType.value;
-      updateOrderPrice();
+      if (mainType) {
+        mainType.value = quickType.value;
+        updateOrderPrice();
+      }
     });
 
     quickArea.addEventListener("input", () => {
       updateQuickPrice();
+      // Синхронизируем ПЛОЩАДЬ в форму заказа
       const mainArea = document.getElementById("areaSize");
-      if (mainArea) mainArea.value = quickArea.value;
-      updateOrderPrice();
+      if (mainArea) {
+        mainArea.value = quickArea.value;
+        updateOrderPrice();
+      }
+    });
+  }
+
+  // Кнопка "Оформить заказ" в калькуляторе — синхронизирует оба поля перед скроллом
+  const quickForm = document.getElementById("quickQuoteForm");
+  if (quickForm) {
+    quickForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      if (quickType && quickArea) {
+        const mainType = document.getElementById("type");
+        const mainArea = document.getElementById("areaSize");
+        if (mainType) mainType.value = quickType.value;
+        if (mainArea) mainArea.value = quickArea.value;
+        updateOrderPrice();
+      }
+      document.getElementById("order")?.scrollIntoView({ behavior: "smooth" });
     });
   }
 
@@ -109,61 +131,42 @@ function initPriceCalculation() {
     typeEl.addEventListener("change", updateOrderPrice);
     areaEl.addEventListener("input", updateOrderPrice);
   }
+
+  // Инициализируем цену с дефолтным значением формы заказа
+  updateOrderPrice();
 }
 
 // =========================
 // Telegram уведомление
 // =========================
-async function sendTelegramNotification(order) {
-  // ⚠️ Замените на ваши данные:
-  const botToken = "8776328263:AAFW4TPDyi1CwnbprZ-S1I2Mj9bXUDL0vv8";
-  const chatId = "897174464";
+function sendTelegramNotification(order) {
+  const botToken = "ТВОЙ_ТОКЕН_БОТА";
+  const chatId = "ТВОЙ_CHAT_ID";
 
-  if (botToken === "TELEGRAM_BOT_TOKEN" || chatId === "TELEGRAM_CHAT_ID") {
-    console.warn("Telegram: токен или chat_id не настроены");
-    return;
-  }
-
-  const typeLabel = {
-    standard: "Стандартная",
-    deep: "Генеральная",
-    office: "Офис"
-  }[order.type] || order.type;
+  // Пропускаем отправку если токен не настроен
+  if (botToken === "ТВОЙ_ТОКЕН_БОТА" || chatId === "ТВОЙ_CHAT_ID") return;
 
   const text =
-    `🧽 <b>Новый заказ SupTemiz</b>\n\n` +
-    `🆔 <b>ID:</b> ${order.id}\n` +
-    `👤 <b>Имя:</b> ${order.name}\n` +
-    `📱 <b>Телефон:</b> ${order.phone}\n` +
-    `📍 <b>Район:</b> ${order.area}\n` +
-    `🏠 <b>Тип:</b> ${typeLabel}\n` +
-    `📐 <b>Площадь:</b> ${order.areaSize || "—"} м²\n` +
-    `💰 <b>Цена:</b> ${order.price} ₺\n` +
-    `📅 <b>Дата:</b> ${order.date || "—"} ${order.time || ""}\n` +
-    `💬 <b>Комментарий:</b> ${order.comment || "—"}\n` +
-    `🔄 <b>Статус:</b> В ожидании`;
+    `🧹 Новый заказ SupTemiz\n` +
+    `ID: ${order.id}\n` +
+    `Имя: ${order.name}\n` +
+    `Телефон: ${order.phone}\n` +
+    `Район: ${order.area}\n` +
+    `Тип: ${order.type}\n` +
+    `Площадь: ${order.areaSize || "—"} м²\n` +
+    `Цена: ${order.price} ₺\n` +
+    `Дата/время: ${order.date || "—"} ${order.time || ""}\n` +
+    `Комментарий: ${order.comment || "—"}`;
 
-  try {
-    const resp = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text,
-        parse_mode: "HTML",
-      }),
-    });
-    const result = await resp.json();
-    if (!result.ok) {
-      console.warn("Telegram API error:", result.description);
-    }
-  } catch (e) {
-    console.warn("Telegram error:", e);
-  }
+  fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ chat_id: chatId, text }),
+  }).catch((e) => console.warn("Telegram error:", e));
 }
 
 // =========================
-// Firebase сохранение
+// Firebase — сохранение заказа
 // =========================
 async function saveOrderToFirebase(data) {
   await addDoc(collection(db, "orders"), {
@@ -181,7 +184,6 @@ function initWhatsApp() {
 
   const phone = "905338001122";
   const msg = "Здравствуйте! Хочу уточнить детали по уборке.";
-
   wa.href = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
 }
 
@@ -194,49 +196,27 @@ function initMenu() {
 
   if (!btn || !menu) return;
 
-  btn.addEventListener("click", (e) => {
-    e.stopPropagation();
+  btn.addEventListener("click", () => {
     const isOpen = menu.classList.toggle("open");
-    btn.setAttribute("aria-expanded", isOpen ? "true" : "false");
-    btn.textContent = isOpen ? "✕" : "☰";
+    btn.setAttribute("aria-expanded", String(isOpen));
   });
 
-  // Закрывать при клике по ссылке
   menu.querySelectorAll("a").forEach((link) => {
     link.addEventListener("click", () => {
       menu.classList.remove("open");
       btn.setAttribute("aria-expanded", "false");
-      btn.textContent = "☰";
     });
   });
-
-  // Закрывать при клике вне меню
-  document.addEventListener("click", (e) => {
-    if (!menu.contains(e.target) && e.target !== btn) {
-      menu.classList.remove("open");
-      btn.setAttribute("aria-expanded", "false");
-      btn.textContent = "☰";
-    }
-  });
 }
 
 // =========================
-// Модальное окно
+// Минимальная дата — сегодня
 // =========================
-function openModal() {
-  const modal = document.getElementById("orderModal");
-  if (!modal) return;
-  modal.setAttribute("aria-hidden", "false");
-  modal.classList.add("modal--open");
-  document.body.style.overflow = "hidden";
-}
-
-function closeModal() {
-  const modal = document.getElementById("orderModal");
-  if (!modal) return;
-  modal.setAttribute("aria-hidden", "true");
-  modal.classList.remove("modal--open");
-  document.body.style.overflow = "";
+function initDateConstraints() {
+  const dateEl = document.getElementById("date");
+  if (!dateEl) return;
+  const today = new Date().toISOString().split("T")[0];
+  dateEl.min = today;
 }
 
 // =========================
@@ -252,9 +232,10 @@ function initOrderForm() {
     if (!form.reportValidity()) return;
 
     const submitBtn = form.querySelector('[type="submit"]');
-    const origText = submitBtn.textContent;
-    submitBtn.disabled = true;
-    submitBtn.textContent = "Отправляем...";
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Отправка...";
+    }
 
     const data = {
       id: "ST-" + Math.random().toString(36).substring(2, 10).toUpperCase(),
@@ -266,6 +247,7 @@ function initOrderForm() {
       date: form.date.value,
       time: form.time.value,
       comment: form.comment.value.trim(),
+
       price: calcPrice(form.type.value, Number(form.areaSize.value || 0)),
       createdAtLocal: new Date().toISOString(),
       status: "pending"
@@ -273,29 +255,51 @@ function initOrderForm() {
 
     try {
       await saveOrderToFirebase(data);
-      await sendTelegramNotification(data);
+      sendTelegramNotification(data);
 
       form.reset();
+      initDateConstraints(); // восстановить min date после reset
       updateOrderPrice();
 
       document.getElementById("orderId").textContent = data.id;
-      openModal();
-    } catch (e) {
-      console.error(e);
-      alert("Ошибка при отправке заявки. Попробуйте ещё раз.");
+
+      // Кнопка «Получать уведомления в Telegram» с deep link
+      const tgBtn = document.getElementById("telegramSubscribeBtn");
+      if (tgBtn) {
+        tgBtn.href = `https://t.me/suptemiz_bot?start=order_${data.id}`;
+        tgBtn.style.display = "inline-flex";
+      }
+
+      const modal = document.getElementById("orderModal");
+      if (modal) modal.setAttribute("aria-hidden", "false");
+    } catch (err) {
+      console.error("Ошибка сохранения:", err);
+      alert("Ошибка при отправке заявки. Проверьте соединение и попробуйте ещё раз.");
     } finally {
-      submitBtn.disabled = false;
-      submitBtn.textContent = origText;
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        // восстановить текст кнопки из data-i18n или дефолт
+        submitBtn.textContent = submitBtn.dataset.i18nText || "Отправить заявку";
+      }
     }
   });
 
+  // Закрытие модала
   document.querySelectorAll("[data-modal-close]").forEach((el) => {
-    el.addEventListener("click", closeModal);
+    el.addEventListener("click", () => {
+      const modal = document.getElementById("orderModal");
+      if (modal) modal.setAttribute("aria-hidden", "true");
+    });
   });
 
-  // Закрыть по Escape
+  // Закрытие модала по Escape
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") closeModal();
+    if (e.key === "Escape") {
+      const modal = document.getElementById("orderModal");
+      if (modal && modal.getAttribute("aria-hidden") === "false") {
+        modal.setAttribute("aria-hidden", "true");
+      }
+    }
   });
 }
 
@@ -318,9 +322,7 @@ function initPWAInstall() {
     if (!deferredPrompt) return;
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === "accepted") {
-      btn.hidden = true;
-    }
+    if (outcome === "accepted") btn.hidden = true;
     deferredPrompt = null;
   });
 }
@@ -333,6 +335,7 @@ document.addEventListener("DOMContentLoaded", () => {
   db = getFirestore(app);
 
   initPriceCalculation();
+  initDateConstraints();
   initOrderForm();
   initWhatsApp();
   initMenu();
