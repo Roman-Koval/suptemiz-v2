@@ -232,6 +232,10 @@ function initOrderForm() {
     if (!form.reportValidity()) return;
 
     const submitBtn = form.querySelector('[type="submit"]');
+    // Сохраняем оригинальный текст один раз при первом submit
+    if (submitBtn && !submitBtn.dataset.originalText) {
+      submitBtn.dataset.originalText = submitBtn.textContent.trim();
+    }
     if (submitBtn) {
       submitBtn.disabled = true;
       submitBtn.textContent = "Отправка...";
@@ -278,8 +282,8 @@ function initOrderForm() {
     } finally {
       if (submitBtn) {
         submitBtn.disabled = false;
-        // восстановить текст кнопки из data-i18n или дефолт
-        submitBtn.textContent = submitBtn.dataset.i18nText || "Отправить заявку";
+        // Восстанавливаем сохранённый оригинальный текст
+        submitBtn.textContent = submitBtn.dataset.originalText || "Отправить заявку";
       }
     }
   });
