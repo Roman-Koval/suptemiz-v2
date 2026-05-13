@@ -15,6 +15,21 @@ import {
 let db = null;
 
 // =========================
+// Дополнительные услуги
+// =========================
+function getExtras() {
+  const checks = document.querySelectorAll(".extra-check:checked");
+  let total = 0;
+  const list = [];
+  checks.forEach((c) => {
+    const price = Number(c.value) || 0;
+    total += price;
+    list.push({ name: c.closest(".extras__item").querySelector("span").textContent.trim(), price });
+  });
+  return { total, list };
+}
+
+// =========================
 // Расчёт стоимости (TRY)
 // =========================
 function calcPrice(type, area) {
@@ -69,8 +84,9 @@ function updateOrderPrice() {
 
   if (!typeEl || !areaEl || !priceEl) return;
 
-  const price = calcPrice(typeEl.value, areaEl.value);
-  priceEl.textContent = formatPrice(price);
+  const base   = calcPrice(typeEl.value, areaEl.value);
+  const extras = getExtras().total;
+  priceEl.textContent = formatPrice(base + extras);
 }
 
 // =========================
@@ -131,6 +147,11 @@ function initPriceCalculation() {
     typeEl.addEventListener("change", updateOrderPrice);
     areaEl.addEventListener("input", updateOrderPrice);
   }
+
+  // Подписываемся на допуслуги
+  document.querySelectorAll(".extra-check").forEach((c) =>
+    c.addEventListener("change", updateOrderPrice)
+  );
 
   // Инициализируем цену с дефолтным значением формы заказа
   updateOrderPrice();
@@ -251,8 +272,10 @@ function initOrderForm() {
       date: form.date.value,
       time: form.time.value,
       comment: form.comment.value.trim(),
+      extras: getExtras().list,
+      extrasTotal: getExtras().total,
 
-      price: calcPrice(form.type.value, Number(form.areaSize.value || 0)),
+      price: calcPrice(form.type.value, Number(form.areaSize.value || 0)) + getExtras().total,
       createdAtLocal: new Date().toISOString(),
       status: "pending",
       // Telegram: подхватываем данные из виджета если клиент авторизовался
